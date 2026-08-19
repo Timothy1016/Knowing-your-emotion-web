@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<!DOCTYPE html>
+<html lang="id">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box of Emotion - Pustaka Emosi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html {
+            scroll-behavior: smooth; /* Biar efek klik linknya bergeser mulus */
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-gray-900 pb-28 font-sans antialiased">
+
+    <div class="max-w-md mx-auto min-h-screen bg-white shadow-sm flex flex-col justify-between p-6">
+        <div>
+            <!-- Header Atas (Logo, dll) -->
+            <div class="flex items-center justify-between mb-6">
+                <!-- ... kode header kamu ... -->
+            </div>
+
+            <!-- Judul Pustaka -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-extrabold text-gray-900 mb-1">Pustaka Emosi 📚</h2>
+                <p class="text-gray-500 text-sm">Jelajahi spektrum emosi.</p>
+            </div>
+
+            <!-- 👇 TEMPELKAN KODE KUMPULAN KARTU EMOSI DI SINI 👇 -->
+            <div id="emotions-container">
+                <!-- Kartu Serenity -->
+                <div id="serenity" class="bg-white p-5 rounded-2xl mb-6 shadow-sm border border-gray-100">
+                    ...
+                </div>
+                <!-- Kartu Tranquility, Wonder, dll sampai bawah -->
+            </div>
+            <!-- 👆 ---------------------------------------------- 👆 -->
+
+        </div>
+
+        <!-- Bottom Navigation Bar -->
+        <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-100 py-3 px-6 flex justify-around items-center z-10">
+            <!-- ... menu navigasi bawah ... -->
+        </div>
+    </div>
+
+</body>
+</html>
+
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box of Emotion - Daftar Catatan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-gray-900 pb-28 font-sans antialiased">
+
+    <div class="max-w-md mx-auto min-h-screen bg-white shadow-sm flex flex-col justify-between p-6">
+        
+        <div>
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl">📦</span>
+                    <h1 class="font-bold text-lg tracking-tight">Box of Emotion</h1>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="bg-gray-100 text-xs font-semibold px-3 py-1.5 rounded-full text-gray-600">EN</button>
+                    <button class="bg-yellow-50 text-xs p-1.5 rounded-full">🌙</button>
+                </div>
+            </div>
+
+            <!-- Title -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-extrabold text-gray-900 mb-1">Catatan Saya 📝</h2>
+                <p class="text-gray-500 text-sm">Klik salah satu catatan untuk membuka halaman detailnya.</p>
+            </div>
+
+            <!-- Daftar Riwayat Catatan -->
+            <div id="notes-container" class="space-y-3">
+                <!-- Catatan dimuat via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Tombol Tambah Catatan (+) Membuka Halaman Baru (tambah.html) -->
+        <div class="flex justify-end my-6">
+            <a href="tambah.html" class="bg-indigo-600 hover:bg-indigo-700 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition text-xl no-underline">
+                +
+            </a>
+        </div>
+
+        <!-- Bottom Navigation Bar -->
+        <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-100 py-3 px-6 flex justify-around items-center z-10">
+            <a href="index.html" class="flex flex-col items-center text-gray-400 text-xs">
+                <span class="text-xl mb-0.5">📦</span>
+                <span>Emosi</span>
+            </a>
+            <button class="flex flex-col items-center text-gray-400 text-xs">
+                <span class="text-xl mb-0.5">📚</span>
+                <span>Pustaka</span>
+            </button>
+            <a href="dashboard.html" class="flex flex-col items-center text-indigo-600 font-medium text-xs">
+                <span class="text-xl mb-0.5">📝</span>
+                <span>Catatan</span>
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        let notes = JSON.parse(localStorage.getItem('my_journal_notes')) || [
+            { text: "aku lagi sedih ga tahu kenapa", date: "Sen, 17 Agu 2026, 17:39", emotion: "Heartache (Sadness)" }
+        ];
+
+        function renderNotes() {
+            const container = document.getElementById('notes-container');
+            container.innerHTML = '';
+
+            if (notes.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">Belum ada catatan.</p>';
+                return;
+            }
+
+            notes.forEach((note, index) => {
+                let formattedText = note.text.replace(/(#[^\s]+)/g, '<span class="text-indigo-600 font-bold underline">$1</span>');
+
+                const card = document.createElement('div');
+                card.className = "bg-white border-2 border-gray-100 hover:border-indigo-400 shadow-sm rounded-2xl p-4 cursor-pointer transition relative";
+                // Saat diklik, pindah ke file detail.html dengan membawa nomor index catatan
+                card.onclick = () => {
+                    window.location.href = `detail.html?id=${index}`;
+                };
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs text-indigo-600 font-semibold">${note.date}</span>
+                        <button onclick="event.stopPropagation(); deleteNote(${index});" class="text-gray-300 hover:text-red-500 text-xs p-1">🗑️</button>
+                    </div>
+                    <p class="text-gray-800 text-sm font-medium">${formattedText}</p>
+                `;
+                container.appendChild(card);
+            });
+
+            localStorage.setItem('my_journal_notes', JSON.stringify(notes));
+        }
+
+        function deleteNote(index) {
+            if (confirm('Hapus catatan ini?')) {
+                notes.splice(index, 1);
+                renderNotes();
+            }
+        }
+
+        window.onload = renderNotes;
+    </script>
+</body>
+</html>

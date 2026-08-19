@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box of Emotion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 35px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: #6366f1;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 22px rgba(99, 102, 241, 0.4);
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .message.error { color: #ef4444; }
+        .message.success { color: #10b981; }
+
+        .toggle-link {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .toggle-link a {
+            color: #6366f1;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .toggle-link a:hover { text-decoration: underline; }
+
+        /* Tampilan Bagian Kotak Emosi (Hidden Default) */
+        .app-section {
+            display: none;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .greeting {
+            font-size: 14px;
+            color: #64748b;
+            text-align: left;
+        }
+
+        .greeting span {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .btn-logout {
+            background: #fef2f2;
+            color: #ef4444;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-logout:hover { background: #fee2e2; }
+
+        .emotion-box {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border-radius: 20px;
+            padding: 35px 20px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        .emotion-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .box-icon { font-size: 42px; margin-bottom: 10px; }
+        .box-title { font-size: 17px; font-weight: 600; }
+
+        .result-card {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: left;
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .result-card.show { display: block; }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .result-emoji { font-size: 30px; }
+        .result-name { font-size: 18px; font-weight: 700; color: #0f172a; }
+
+        .result-section {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .result-section strong { color: #1e293b; display: block; margin-bottom: 2px; }
+
+        .btn-retry {
+            background: #f1f5f9;
+            border: none;
+            color: #475569;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn-retry:hover { background: #e2e8f0; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- HALAMAN AUTH (LOGIN & REGISTER) -->
+        <div id="authSection">
+            <h1 id="formTitle">✨ Buat Akun Baru</h1>
+            <p class="subtitle" id="formSubtitle">Daftarkan nama dan password buatanmu untuk mulai.</p>
+
+            <div class="form-group">
+                <label>Nama Pengguna</label>
+                <input type="text" id="username" placeholder="Contoh: Budi">
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Click here for your password">
+            </div>
+
+            <button class="btn-submit" id="submitBtn" onclick="handleSubmit()">Daftar Akun</button>
+            <div class="message" id="message"></div>
+
+            <div class="toggle-link" id="toggleContainer">
+                Sudah punya akun? <a onclick="switchMode('login')">Masuk di sini</a>
+            </div>
+        </div>
+
+        <!-- HALAMAN UTAMA BOX OF EMOTION -->
+        <div id="mainSection" class="app-section">
+            <div class="header-top">
+                <div class="greeting">Halo, <span id="userNameDisplay">Teman</span> 👋</div>
+                <button class="btn-logout" onclick="logout()">Keluar</button>
+            </div>
+
+            <h1>📦 Box of Emotion</h1>
+            <p class="subtitle">Ketuk kotak di bawah untuk mengambil kartu emosi hari ini.</p>
+
+            <div class="emotion-box" id="box" onclick="pickEmotion()">
+                <div class="box-icon">🎁</div>
+                <div class="box-title">Buka Kotak Emosi</div>
+            </div>
+
+            <div class="result-card" id="resultCard">
+                <div class="result-header">
+                    <div class="result-emoji" id="resEmoji">✨</div>
+                    <div>
+                        <div class="result-name" id="resName">Nama Emosi</div>
+                    </div>
+                </div>
+                <div class="result-section">
+                    <strong>💡 Refleksi:</strong>
+                    <span id="resReflection">Deskripsi...</span>
+                </div>
+                <div class="result-section">
+                    <strong>🌱 Saran Tindakan:</strong>
+                    <span id="resAdvice">Saran...</span>
+                </div>
+            </div>
+
+            <button class="btn-retry" id="btnRetry" style="display: none;" onclick="resetBox()">Ambil Kartu Lain</button>
+        </div>
+    </div>
+
+    <script>
+        let isLoginMode = false;
+
+        const savedUser = localStorage.getItem("boxUser");
+        const savedPass = localStorage.getItem("boxPass");
+        const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+        // Jika sudah login sebelumnya, langsung tampilkan halaman utama
+        if (isLoggedIn === "true" && savedUser) {
+            showMainApp(savedUser);
+        } else if (savedUser) {
+            switchMode('login');
+        }
+
+        function switchMode(mode) {
+            const formTitle = document.getElementById("formTitle");
+            const formSubtitle = document.getElementById("formSubtitle");
+            const submitBtn = document.getElementById("submitBtn");
+            const toggleContainer = document.getElementById("toggleContainer");
+            document.getElementById("message").innerText = "";
+
+            if (mode === 'login') {
+                isLoginMode = true;
+                formTitle.innerText = "👋 Selamat Datang Kembali";
+                formSubtitle.innerText = "Masukkan nama dan password yang sudah terdaftar.";
+                submitBtn.innerText = "Masuk ke Box";
+                toggleContainer.innerHTML = `Belum punya akun? <a onclick="switchMode('register')">Daftar di sini</a>`;
+                if(savedUser) document.getElementById("username").value = savedUser;
+            } else {
+                isLoginMode = false;
+                formTitle.innerText = "✨ Buat Akun Baru";
+                formSubtitle.innerText = "Daftarkan nama dan password buatanmu untuk mulai.";
+                submitBtn.innerText = "Daftar Akun";
+                toggleContainer.innerHTML = `Sudah punya akun? <a onclick="switchMode('login')">Masuk di sini</a>`;
+                document.getElementById("username").value = "";
+                document.getElementById("password").value = "";
+            }
+        }
+
+        function handleSubmit() {
+            const usernameInput = document.getElementById("username").value.trim();
+            const passwordInput = document.getElementById("password").value;
+            const messageEl = document.getElementById("message");
+
+            if (!usernameInput || !passwordInput) {
+                messageEl.className = "message error";
+                messageEl.innerText = "Nama dan password tidak boleh kosong!";
+                return;
+            }
+
+            if (!isLoginMode) {
+                // Proses Pendaftaran
+                localStorage.setItem("boxUser", usernameInput);
+                localStorage.setItem("boxPass", passwordInput);
+
+                messageEl.className = "message success";
+                messageEl.innerText = "Akun berhasil dibuat! Silakan masuk...";
+
+                setTimeout(() => {
+                    switchMode('login');
+                    document.getElementById("password").value = "";
+                }, 1000);
+            } else {
+                // Proses Login
+                const storedUser = localStorage.getItem("boxUser");
+                const storedPass = localStorage.getItem("boxPass");
+
+                if (usernameInput === storedUser && passwordInput === storedPass) {
+                    localStorage.setItem("isLoggedIn", "true");
+                    showMainApp(storedUser);
+                } else {
+                    messageEl.className = "message error";
+                    messageEl.innerText = "Nama atau password salah!";
+                }
+            }
+        }
+
+        function showMainApp(username) {
+            document.getElementById("authSection").style.display = "none";
+            document.getElementById("mainSection").style.display = "block";
+            document.getElementById("userNameDisplay").innerText = username;
+        }
+
+        function logout() {
+            localStorage.removeItem("isLoggedIn");
+            location.reload();
+        }
+
+        // Database Kumpulan Emosi
+        const emotions = [
+            {
+                emoji: "😊",
+                name: "Bahagia & Tenang (Joy)",
+                reflection: "Kamu merasa damai dan puas dengan keadaan sekitar saat ini. Energi positif sedang mengalir dalam dirimu.",
+                advice: "Nikmati momen ini sepenuhnya. Bagikan energi baikmu kepada orang terdekat atau ucapkan terima kasih pada diri sendiri."
+            },
+            {
+                emoji: "🔋",
+                name: "Kewalahan (Overwhelmed)",
+                reflection: "Banyak hal yang menumpuk di pikiran atau tugasmu, membuatmu merasa seperti kehilangan kendali sejenak.",
+                advice: "Tarik napas dalam-dalam. Buat daftar prioritas (to-do list), selesaikan satu hal kecil dulu, lalu istirahat sejenak."
+            },
+            {
+                emoji: "🌧️",
+                name: "Melankolis / Sedih (Melancholy)",
+                reflection: "Ada perasaan berat atau rindu yang tak berdarah. Sangat wajar merasa rapuh dan tidak harus selalu kuat.",
+                advice: "Izinkan dirimu merasakannya tanpa menghakimi. Menangislah jika perlu, dengarkan lagu tenang, atau curhat ke orang terpercaya."
+            },
+            {
+                emoji: "⚡",
+                name: "Bersemangat & Ambisius (Eager)",
+                reflection: "Kamu punya dorongan kuat untuk menciptakan sesuatu, menyelesaikan target, atau memulai lembaran baru.",
+                advice: "Salurkan energi besar ini ke dalam tindakan nyata, tapi ingat untuk tetap menjaga ritme agar tidak cepat burnout."
+            },
+            {
+                emoji: "🌪️",
+                name: "Cemas / Khawatir (Anxious)",
+                reflection: "Pikiranmu melompat ke masa depan dan memikirkan skenario terburuk yang belum tentu terjadi.",
+                advice: "Fokus pada masa kini (the present moment). Lakukan teknik grounding: sebutkan 3 hal yang bisa kamu lihat dan sentuh di sekitarmu."
+            },
+            {
+                emoji: "🧩",
+                name: "Bingung / Penasaran (Curious)",
+                reflection: "Ada tanda tanya besar di kepalamu tentang arah hidup, keputusan, atau suatu masalah yang belum terpecahkan.",
+                advice: "Jangan terburu-buru mencari jawaban instan. Tuliskan pertanyaan-pertanyaan itu di jurnal dan biarkan pikiranmu memprosesnya perlahan."
+            }
+        ];
+
+        function pickEmotion() {
+            const randomIndex = Math.floor(Math.random() * emotions.length);
+            const selected = emotions[randomIndex];
+
+            document.getElementById("resEmoji").innerText = selected.emoji;
+            document.getElementById("resName").innerText = selected.name;
+            document.getElementById("resReflection").innerText = selected.reflection;
+            document.getElementById("resAdvice").innerText = selected.advice;
+
+            document.getElementById("box").style.display = "none";
+            document.getElementById("resultCard").classList.add("show");
+            document.getElementById("btnRetry").style.display = "block";
+        }
+
+        function resetBox() {
+            document.getElementById("resultCard").classList.remove("show");
+            document.getElementById("btnRetry").style.display = "none";
+            document.getElementById("box").style.display = "block";
+        }
+    </script>
+</body>
+</html>
