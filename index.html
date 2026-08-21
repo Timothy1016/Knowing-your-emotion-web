@@ -1,307 +1,17 @@
 <!DOCTYPE html>
-<html lang="id" id="htmlRoot">
+<html lang="en" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Box of Emotion</title>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        html { scroll-behavior: smooth; }
-
-        /* === COLOR PALETTE & VARIABLES === */
-        :root {
-            --bg-app: #f1f5f9;
-            --bg-shape1: #e0e7ff;
-            --bg-shape2: #fce7f3;
-            --surface: rgba(255, 255, 255, 0.85);
-            --surface-solid: #ffffff;
-            --text-main: #0f172a;
-            --text-sub: #64748b;
-            --border: rgba(226, 232, 240, 0.8);
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --primary-glow: rgba(99, 102, 241, 0.4);
-            --card-hover: rgba(248, 250, 252, 0.9);
-            --btn-alt: #f1f5f9;
-            --btn-alt-text: #475569;
-            --danger: #ef4444;
-            --danger-bg: #fef2f2;
-            --success: #10b981;
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
-            --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.05);
-            --shadow-lg: 0 20px 40px -10px rgba(0,0,0,0.08);
-            --shadow-up: 0 -10px 25px -5px rgba(0,0,0,0.05);
-
-            /* === EMOTION CATEGORY COLORS ===
-               Each spectrum gets its own accent, echoing the way the physical
-               Box of Emotions gives every category its own colour pattern. */
-            --c-zen: #0891b2;
-            --c-bliss: #f59e0b;
-            --c-enjoyment: #ec4899;
-            --c-possibility: #10b981;
-            --c-ego: #a855f7;
-            --c-heat: #ef4444;
-            --c-heartache: #3b82f6;
-            --c-angst: #7c3aed;
-            --c-loathing: #65a30d;
-            --c-bitterness: #b45309;
-            --c-emptiness: #64748b;
-        }
-
-        [data-theme="dark"] {
-            --bg-app: #020617;
-            --bg-shape1: #1e1b4b;
-            --bg-shape2: #2e1065;
-            --surface: rgba(15, 23, 42, 0.75);
-            --surface-solid: #0f172a;
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --border: rgba(30, 41, 59, 0.8);
-            --primary: #818cf8;
-            --primary-hover: #6366f1;
-            --primary-glow: rgba(129, 140, 248, 0.25);
-            --card-hover: rgba(30, 41, 59, 0.9);
-            --btn-alt: #1e293b;
-            --btn-alt-text: #cbd5e1;
-            --danger: #f87171;
-            --danger-bg: rgba(239, 68, 68, 0.1);
-            --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.3);
-            --shadow-lg: 0 20px 40px -10px rgba(0,0,0,0.5);
-            --shadow-up: 0 -10px 25px -5px rgba(0,0,0,0.3);
-        }
-
-        /* === GLOBAL RESET === */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Lora', serif; -webkit-tap-highlight-color: transparent; }
-        body {
-            background-color: var(--bg-app); color: var(--text-main);
-            min-height: 100vh; display: flex; justify-content: center; align-items: center;
-            padding: 20px; overflow: hidden; position: relative;
-            transition: background-color 0.5s ease, color 0.5s ease;
-        }
-
-        /* Background Decor */
-        .bg-shape { position: absolute; border-radius: 50%; filter: blur(80px); z-index: -1; transition: background 0.8s ease; }
-        .shape-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--bg-shape1); }
-        .shape-2 { bottom: -10%; right: -10%; width: 40vw; height: 40vw; background: var(--bg-shape2); }
-
-        /* === MAIN CONTAINER === */
-        .app-container {
-            width: 100%; max-width: 440px; height: 90vh; max-height: 850px;
-            background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: 32px; box-shadow: var(--shadow-lg);
-            display: flex; flex-direction: column; position: relative; overflow: hidden;
-            transition: background 0.5s ease, border-color 0.5s ease;
-        }
-
-        .hidden { display: none !important; }
-
-        /* === HEADER === */
-        .header-bar { padding: 24px 24px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 10; border-bottom: 1px solid transparent; }
-        .header-bar.active-border { border-bottom-color: var(--border); }
-        .brand { font-size: 16px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; display: flex; align-items: center; gap: 6px; }
-        .controls { display: flex; gap: 8px; }
-        .btn-icon {
-            background: var(--btn-alt); color: var(--text-main); border: 1px solid var(--border);
-            height: 36px; padding: 0 10px; border-radius: 12px; display: flex; justify-content: center; align-items: center;
-            font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s;
-        }
-        .btn-icon:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-        .btn-icon:active { transform: translateY(0) scale(0.95); }
-
-        /* === SCROLLABLE CONTENT === */
-        .content-area { flex: 1; overflow-y: auto; padding: 0 24px 24px; display: flex; flex-direction: column; scroll-behavior: smooth; position: relative; }
-        .content-area::-webkit-scrollbar { width: 4px; display: none; }
-        
-        .page-title { font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; letter-spacing: -0.5px; }
-        .page-subtitle { font-size: 14px; color: var(--text-sub); line-height: 1.5; margin-bottom: 32px; }
-
-        /* === FORM (AUTH) === */
-        .form-group { margin-bottom: 20px; position: relative; }
-        .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-sub); margin-bottom: 8px; margin-left: 4px; }
-        .form-control {
-            width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 16px;
-            font-size: 15px; font-weight: 500; background: var(--surface-solid); color: var(--text-main);
-            transition: all 0.3s ease; outline: none;
-        }
-        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
-        
-        .btn-primary {
-            background: var(--primary); color: #fff; border: none; width: 100%; padding: 16px;
-            border-radius: 16px; font-size: 15px; font-weight: 700; cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-top: 8px; box-shadow: 0 8px 20px var(--primary-glow);
-        }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-3px); box-shadow: 0 12px 25px var(--primary-glow); }
-        .btn-primary:active { transform: translateY(0) scale(0.98); }
-
-        .auth-switch { text-align: center; margin-top: 24px; font-size: 14px; color: var(--text-sub); }
-        .auth-switch span { color: var(--primary); font-weight: 700; cursor: pointer; transition: color 0.2s; }
-        .auth-switch span:hover { text-decoration: underline; }
-
-        /* === TOAST === */
-        .toast {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150%);
-            padding: 12px 24px; border-radius: 100px; font-size: 13px; font-weight: 600;
-            z-index: 999; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); opacity: 0; box-shadow: var(--shadow-md);
-            white-space: nowrap;
-        }
-        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-        .toast.error { background: var(--danger); color: white; }
-        .toast.success { background: var(--success); color: white; }
-
-        /* === DASHBOARD === */
-        .user-greeting { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px dashed var(--border); }
-        .greeting-text p { font-size: 13px; color: var(--text-sub); }
-        .greeting-text h2 { font-size: 18px; font-weight: 700; color: var(--text-main); }
-        .btn-logout { background: var(--danger-bg); color: var(--danger); padding: 8px 16px; border-radius: 12px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; transition: transform 0.2s; }
-        .btn-logout:hover { transform: scale(1.05); }
-
-        /* Grid System */
-        .emotions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding-bottom: 20px; }
-        .card {
-            background: var(--surface-solid); border: 1px solid var(--border); border-radius: 20px;
-            padding: 20px 16px; cursor: pointer; text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow-sm);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-            animation: slideUpFade 0.5s forwards;
-        }
-        .card:hover { border-color: var(--primary); background: var(--card-hover); transform: translateY(-5px); box-shadow: var(--shadow-md); }
-        .card:active { transform: translateY(0) scale(0.95); }
-        .card.span-2 { grid-column: span 2; flex-direction: row; text-align: left; padding: 24px; }
-        .card.span-2 .card-info { align-items: flex-start; }
-        
-        .card-emoji { width: 48px; height: 48px; background: var(--bg-app); border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 24px; transition: transform 0.3s; flex-shrink: 0; }
-        .card:hover .card-emoji { transform: scale(1.1) rotate(5deg); }
-        .card-info { display: flex; flex-direction: column; align-items: center; width: 100%; }
-        .card-title { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
-        .card-desc { font-size: 11px; color: var(--text-sub); font-weight: 500; }
-
-        /* === CURHAT / AI ANALYSIS CARD === */
-        .curhat-card {
-            background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
-            border-radius: 20px; padding: 20px; margin-bottom: 24px; color: #fff;
-            box-shadow: var(--shadow-md); animation: slideUpFade 0.5s forwards;
-        }
-        .curhat-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
-        .curhat-sub { font-size: 12px; opacity: 0.9; margin-bottom: 12px; line-height: 1.4; }
-        .curhat-textarea {
-            width: 100%; border: none; border-radius: 14px; padding: 12px 14px;
-            font-size: 14px; color: var(--text-main); background: rgba(255,255,255,0.95);
-            resize: none; outline: none; font-family: inherit;
-        }
-        .curhat-card .btn-primary { background: #0f172a; box-shadow: none; }
-        .curhat-card .btn-primary:hover { background: #1e293b; }
-        .curhat-result {
-            margin-top: 14px; background: rgba(255,255,255,0.15); border-radius: 14px;
-            padding: 12px 14px; font-size: 13px; line-height: 1.5; display: flex;
-            flex-direction: column; gap: 8px; animation: zoomIn 0.3s forwards;
-        }
-        .curhat-result.error { background: rgba(239,68,68,0.25); }
-        .curhat-result-btn {
-            align-self: flex-start; background: #fff; color: var(--primary); border: none;
-            font-weight: 700; font-size: 12px; padding: 8px 14px; border-radius: 10px;
-            cursor: pointer; margin-top: 2px;
-        }
-
-        /* Reflection Card */
-        .reflection-card { background: var(--surface-solid); border: 2px solid var(--primary); border-radius: 24px; padding: 28px 20px; box-shadow: var(--shadow-md); margin-bottom: 24px; animation: zoomIn 0.4s forwards; }
-        .refl-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 20px; }
-        .refl-emoji { font-size: 48px; margin-bottom: 8px; }
-        .refl-title { font-size: 20px; font-weight: 800; color: var(--text-main); }
-        .refl-body { background: var(--bg-app); border-radius: 16px; padding: 16px; }
-        .refl-section { margin-bottom: 14px; }
-        .refl-section:last-child { margin-bottom: 0; }
-        .refl-label { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-        .refl-text { font-size: 13px; color: var(--text-main); line-height: 1.6; font-weight: 500; text-align: justify; }
-
-        /* === NOTES FEATURE === */
-        .notes-list { display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-sub); }
-        .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
-        
-        .note-item {
-            background: var(--surface-solid); border: 1px solid var(--border); border-radius: 20px;
-            padding: 20px; box-shadow: var(--shadow-sm); animation: slideUpFade 0.4s forwards;
-            position: relative; overflow: hidden;
-        }
-        .note-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .note-date { font-size: 12px; font-weight: 600; color: var(--primary); }
-        .btn-delete { background: none; border: none; color: var(--danger); font-size: 16px; cursor: pointer; padding: 4px; opacity: 0.5; transition: opacity 0.2s; }
-        .btn-delete:hover { opacity: 1; }
-        .note-content { font-size: 14px; color: var(--text-main); line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; }
-
-        /* Floating Action Button (FAB) */
-        .fab {
-            position: absolute; bottom: 90px; right: 24px;
-            width: 56px; height: 56px; border-radius: 50%;
-            background: var(--primary); color: white; border: none;
-            font-size: 28px; display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 10px 20px var(--primary-glow); cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50;
-        }
-        .fab:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 25px var(--primary-glow); }
-        .fab:active { transform: translateY(0) scale(0.95); }
-
-        /* Note Input View */
-        .note-input-container { display: flex; flex-direction: column; height: 100%; animation: zoomIn 0.3s forwards; padding-bottom: 40px; }
-        .note-textarea {
-            flex: 1; width: 100%; background: var(--surface-solid); border: 2px solid var(--border);
-            border-radius: 20px; padding: 20px; font-size: 15px; color: var(--text-main);
-            resize: none; outline: none; margin-bottom: 16px; min-height: 200px;
-            transition: border-color 0.3s; line-height: 1.6;
-        }
-        .note-textarea:focus { border-color: var(--primary); }
-        .note-actions { display: flex; gap: 12px; }
-        .btn-cancel {
-            background: var(--bg-app); color: var(--text-main); border: 1px solid var(--border);
-            flex: 1; padding: 16px; border-radius: 16px; font-size: 15px; font-weight: 700; cursor: pointer;
-        }
-
-        /* === LIBRARY TAB === */
-        .library-list { display: flex; flex-direction: column; gap: 16px; padding-bottom: 80px; }
-        .lib-category-card {
-            background: var(--surface-solid); border: 1px solid var(--border); border-radius: 20px;
-            padding: 20px; box-shadow: var(--shadow-sm);
-        }
-        .lib-cat-title { font-size: 16px; font-weight: 800; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .lib-item { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-        .lib-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-        .lib-item-name { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
-        .lib-item-desc { font-size: 13px; color: var(--text-sub); line-height: 1.5; text-align: justify; margin-bottom: 6px; }
-        .lib-item-see { font-size: 11px; font-weight: 600; color: var(--primary); font-style: italic; }
-
-        /* === BOTTOM NAVIGATION === */
-        .bottom-nav {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 70px;
-            background: var(--surface); border-top: 1px solid var(--border);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 100; transform: translateY(100%); transition: transform 0.4s ease;
-        }
-        .bottom-nav.show { transform: translateY(0); }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            color: var(--text-sub); font-size: 11px; font-weight: 600; cursor: pointer;
-            padding: 8px 16px; transition: color 0.3s;
-        }
-        .nav-icon { font-size: 20px; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .nav-item.active { color: var(--primary); }
-        .nav-item.active .nav-icon { transform: translateY(-4px) scale(1.1); }
-
-        .btn-back-wrap { margin-top: 10px; margin-bottom: 20px; }
-        .btn-back {
-            background: var(--surface-solid); color: var(--text-main); border: 1px solid var(--border);
-            width: 100%; padding: 14px; border-radius: 16px; font-weight: 700; font-size: 14px;
-            cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.3s;
-            display: flex; justify-content: center; align-items: center; gap: 8px;
-        }
-        .btn-back:hover { background: var(--card-hover); transform: translateY(-3px); }
-
-        /* ANIMATIONS */
-        @keyframes slideUpFade { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
-        @keyframes zoomIn { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
-        .list-view .card { flex-direction: row; text-align: left; padding: 16px; justify-content: flex-start; }
-        .list-view .card-info { align-items: flex-start; }
-    </style>
+    <title>Box of Emotions</title>
+    <meta name="description" content="Recognize, reflect on, and record 68 emotions in three languages.">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -311,16 +21,18 @@
     <div class="bg-shape shape-2"></div>
 
     <div class="app-container">
-        <div id="toast" class="toast">Message here</div>
+        <div id="toast" class="toast" role="status" aria-live="polite">Message here</div>
 
         <!-- HEADER -->
         <div class="header-bar" id="headerBar">
-            <div class="brand">📦 <span id="brandText">Box of Emotion</span></div>
+            <div class="brand">📦 <span id="brandText">Box of Emotions</span></div>
             <div class="controls">
-                <button class="btn-icon" id="langBtn" onclick="toggleLang()" title="Switch Language">EN</button>
+                <button class="btn-icon hidden" id="installBtn" type="button" onclick="installPWA()" title="Install app" aria-label="Install app">⬇︎</button>
+                <button class="btn-icon" id="langBtn" onclick="toggleLang()" title="Switch Language">中文</button>
                 <button class="btn-icon" id="themeBtn" onclick="toggleTheme()" title="Toggle Theme">🌙</button>
             </div>
         </div>
+        <div class="scroll-progress" aria-hidden="true"><span id="scrollProgressBar"></span></div>
 
         <!-- CONTENT AREA -->
         <div class="content-area" id="scrollArea">
@@ -328,25 +40,27 @@
             <!-- AUTH SECTION -->
             <div id="authSection">
                 <div style="margin-top: 20px;">
-                    <h1 class="page-title" id="authTitle">Buat Akun ✨</h1>
-                    <p class="page-subtitle" id="authSubtitle">Mulai kenali dan kelola emosimu hari ini.</p>
+                    <h1 class="page-title" id="authTitle">Create Account ✨</h1>
+                    <p class="page-subtitle" id="authSubtitle">Start recognizing and managing your emotions.</p>
                 </div>
                 <div class="form-group">
-                    <label id="lblUser">Nama Panggilan</label>
-                    <input type="text" id="username" class="form-control" placeholder="Cth: Budi">
+                    <label id="lblUser" for="username">Nickname</label>
+                    <input type="text" id="username" class="form-control" placeholder="e.g. Alex" autocomplete="username">
                 </div>
                 <div class="form-group">
-                    <label id="lblPass">Kata Sandi</label>
-                    <input type="password" id="password" class="form-control" placeholder="••••••••">
+                    <label id="lblPass" for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" autocomplete="new-password" minlength="8" maxlength="128">
                 </div>
-                <button class="btn-primary" id="btnSubmit" onclick="handleAuth()">Daftar Sekarang</button>
+                <button type="button" class="btn-primary" id="btnSubmit" onclick="handleAuth()">Sign Up</button>
+                <button type="button" class="btn-secondary" id="btnGuest" onclick="continueAsGuest()">Continue as guest</button>
+                <p class="privacy-note" id="authPrivacy">Your password is securely processed and is never stored as plain text.</p>
                 <div class="auth-switch" id="authSwitchText">
-                    Sudah punya akun? <span onclick="switchAuthMode()">Masuk di sini</span>
+                    Already have an account? <button type="button" class="btn-link" onclick="switchAuthMode()">Sign in here</button>
                 </div>
             </div>
 
             <!-- TAB: EMOTIONS (HOME) -->
-            <div id="tabEmotions" class="hidden" style="padding-bottom: 40px;">
+            <div id="tabEmotions" class="hidden">
                 <div id="homeView">
                     <div class="user-greeting">
                         <div class="greeting-text">
@@ -361,30 +75,64 @@
                         <div class="curhat-title" id="curhatTitle">✍️ Curhat Dulu, Yuk</div>
                         <p class="curhat-sub" id="curhatSub">Tulis apa yang kamu rasakan, biar sistem coba menebak emosinya.</p>
                         <textarea class="curhat-textarea" id="curhatInput" placeholder="Cth: aku lagi bete banget sama kerjaan..." rows="3"></textarea>
-                        <button class="btn-primary" id="curhatBtn" style="margin-top: 10px;" onclick="analyzeCurhat()">Analisa Perasaanku</button>
-                        <div class="curhat-result hidden" id="curhatResult"></div>
+                        <button type="button" class="btn-primary" id="curhatBtn" style="margin-top: 10px;" onclick="analyzeCurhat()">Analisa Perasaanku</button>
+                        <div class="curhat-result hidden" id="curhatResult" role="status" aria-live="polite"></div>
+                        <p class="curhat-safety" id="curhatSafety">Hasil ini untuk refleksi, bukan diagnosis medis.</p>
                     </div>
 
                     <h1 class="page-title" id="dashTitle" style="font-size: 24px;">Bagaimana perasaanmu?</h1>
                     <p class="page-subtitle" id="dashSubtitle">Pilih spektrum emosi di bawah ini.</p>
+                    <section class="wheel-card" aria-labelledby="wheelTitle">
+                        <div class="wheel-heading">
+                            <span class="wheel-heading-icon" aria-hidden="true">✦</span>
+                            <div>
+                                <h2 class="wheel-title" id="wheelTitle">Emotion Wheel</h2>
+                                <p class="wheel-subtitle" id="wheelSubtitle">Tekan simbol pada roda untuk menjelajahi spektrum emosi.</p>
+                            </div>
+                        </div>
+                        <div class="wheel-explorer">
+                            <div class="emotion-wheel" id="emotionWheel" role="group" aria-label="11 spektrum emosi"></div>
+                            <div class="wheel-legend" id="emotionWheelLegend" aria-label="Daftar spektrum emosi"></div>
+                        </div>
+                    </section>
+                    <div class="saved-panels" id="savedPanels"></div>
                     <div class="emotions-grid" id="mainGrid"></div>
                 </div>
 
                 <!-- Detail / Sub-category View -->
                 <div id="detailViewWrapper" class="hidden">
                     <div class="btn-back-wrap">
-                        <button class="btn-back" onclick="goBackEmotions()">← <span id="txtBack">Kembali</span></button>
+                        <button type="button" class="btn-back" onclick="goBackEmotions()">← <span id="txtBack">Kembali</span></button>
                     </div>
+                    <section class="spectrum-intro hidden" id="spectrumIntro" aria-labelledby="spectrumTitle">
+                        <div class="spectrum-heading">
+                            <div class="spectrum-icon" id="spectrumIcon" aria-hidden="true">✨</div>
+                            <div class="spectrum-heading-copy">
+                                <div class="spectrum-kicker" id="spectrumKicker">Tentang spektrum ini</div>
+                                <h1 class="spectrum-title" id="spectrumTitle">Nama Spektrum</h1>
+                                <div class="spectrum-translation" id="spectrumTitleTranslation">Arti spektrum</div>
+                            </div>
+                        </div>
+                        <p class="spectrum-description" id="spectrumDescription">Penjelasan spektrum emosi.</p>
+                        <div class="spectrum-meta">
+                            <span class="spectrum-count" id="spectrumCount">5 Variasi</span>
+                            <span class="spectrum-prompt" id="spectrumPrompt">Pilih yang paling mewakili kondisimu</span>
+                        </div>
+                        <p class="spectrum-note"><span class="spectrum-note-icon" aria-hidden="true">i</span><span id="spectrumNote">Spektrum adalah kelompok pengalaman emosi, bukan satu emosi tunggal.</span></p>
+                    </section>
                     <div id="subGrid" class="emotions-grid list-view hidden"></div>
                     <div id="reflectionDetail" class="hidden">
                         <div class="reflection-card" id="reflectionCardBox">
                             <div class="refl-header">
                                 <div class="refl-emoji" id="resEmoji">✨</div>
                                 <div class="refl-title" id="resName">Nama Emosi</div>
+                                <div class="detail-actions">
+                                    <button type="button" class="detail-action" id="favoriteBtn" onclick="toggleFavorite()">☆ Favorit</button>
+                                </div>
                             </div>
                             <div class="refl-body">
                                 <div class="refl-section">
-                                    <div class="refl-label" id="lblRefl">💡 Refleksi & Esai</div>
+                                    <div class="refl-label" id="lblRefl">💡 Refleksi &amp; Esai</div>
                                     <div class="refl-text" id="resReflection">...</div>
                                 </div>
                                 <div class="refl-section" id="adviceSection">
@@ -393,7 +141,7 @@
                                 </div>
                                 <div class="refl-section" id="seeAlsoSection" style="margin-top:12px;">
                                     <div class="refl-label" id="lblSeeAlso">🔗 Terkait</div>
-                                    <div class="refl-text" id="resSeeAlso" style="font-style: italic; color: var(--primary);">...</div>
+                                    <div class="see-also-links" id="resSeeAlso">...</div>
                                 </div>
                             </div>
                         </div>
@@ -407,6 +155,25 @@
                     <h1 class="page-title" id="libTitle">Pustaka Emosi 📚</h1>
                     <p class="page-subtitle" id="libSubtitle">Kumpulan lengkap esai mendalam seluruh kategori spektrum emosi.</p>
                 </div>
+                <div class="library-tools">
+                    <label class="sr-only" id="libSearchLabel" for="librarySearch">Cari emosi</label>
+                    <div class="library-search-wrap">
+                        <span class="library-search-icon" aria-hidden="true">🔎</span>
+                        <input id="librarySearch" class="library-search" type="search" placeholder="Cari emosi..." oninput="renderLibrary()">
+                        <button type="button" class="library-clear" id="libraryClear" onclick="clearLibrarySearch()" aria-label="Hapus pencarian">×</button>
+                    </div>
+                    <div class="filter-row" id="libraryFilters">
+                        <button type="button" class="filter-chip active" data-filter="all" onclick="setLibraryFilter('all')">Semua</button>
+                        <button type="button" class="filter-chip" data-filter="calm" onclick="setLibraryFilter('calm')">Tenang</button>
+                        <button type="button" class="filter-chip" data-filter="heavy" onclick="setLibraryFilter('heavy')">Berat</button>
+                        <button type="button" class="filter-chip" data-filter="positive" onclick="setLibraryFilter('positive')">Positif</button>
+                        <button type="button" class="filter-chip" data-filter="favorites" onclick="setLibraryFilter('favorites')">Favorit</button>
+                        <button type="button" class="filter-chip" data-filter="recent" onclick="setLibraryFilter('recent')">Terakhir dilihat</button>
+                        <button type="button" class="filter-chip" data-filter="frequent" onclick="setLibraryFilter('frequent')">Sering dilihat</button>
+                    </div>
+                    <div class="library-count" id="libraryResultCount" aria-live="polite"></div>
+                    <div class="fuzzy-hint" id="fuzzySearchHint">Pencarian tetap bekerja meskipun ada salah ketik.</div>
+                </div>
                 <div class="library-list" id="libraryContainer">
                     <!-- Library items injected here -->
                 </div>
@@ -418,12 +185,16 @@
                     <div style="margin-top: 20px; margin-bottom: 24px;">
                         <h1 class="page-title" id="notesTitle">Catatan Saya 📝</h1>
                         <p class="page-subtitle" id="notesSubtitle">Tuliskan pikiran dan perasaanmu di sini.</p>
+                        <div class="notes-toolbar">
+                            <input type="search" class="compact-input" id="notesSearch" placeholder="Cari catatan..." oninput="renderNotes()">
+                            <button type="button" class="btn-compact" id="btnExportNotes" onclick="exportNotes()">Ekspor</button>
+                        </div>
                     </div>
                     <div class="notes-list" id="notesContainer">
                         <!-- Notes injected here -->
                     </div>
                     <!-- FAB for Add Note -->
-                    <button class="fab" onclick="showCreateNote()">+</button>
+                    <button type="button" class="fab" id="btnNewNote" onclick="showCreateNote()" aria-label="Tulis catatan baru">+</button>
                 </div>
 
                 <!-- Create Note View -->
@@ -432,844 +203,89 @@
                         <h1 class="page-title" id="createNoteTitle" style="font-size: 22px;">Tulis Catatan ✍️</h1>
                     </div>
                     <textarea class="note-textarea" id="noteInput" placeholder="Tulis sesuatu..."></textarea>
+                    <label class="form-group compact-label" for="noteTag"><span id="noteTagLabel">Tag emosi</span>
+                        <select id="noteTag" class="form-control"></select>
+                    </label>
                     <div class="note-actions">
-                        <button class="btn-cancel" id="btnCancelNote" onclick="hideCreateNote()">Batal</button>
-                        <button class="btn-primary" id="btnSaveNote" style="margin-top: 0; flex: 1;" onclick="saveNote()">Simpan</button>
+                        <button type="button" class="btn-cancel" id="btnCancelNote" onclick="hideCreateNote()">Batal</button>
+                        <button type="button" class="btn-primary" id="btnSaveNote" style="margin-top: 0; flex: 1;" onclick="saveNote()">Simpan</button>
                     </div>
                 </div>
             </div>
 
+            <!-- TAB: ABOUT -->
+            <div id="tabAbout" class="hidden about-page">
+                <h1 class="page-title" id="aboutTitle">Tentang &amp; Kredit ℹ️</h1>
+                <p class="page-subtitle" id="aboutSubtitle">Tujuan, batasan, dan asal konsep Box of Emotions.</p>
+                <section class="about-card">
+                    <h2 id="aboutPurposeTitle">Tujuan edukasi</h2>
+                    <p id="aboutPurpose">Box of Emotions membantu pengguna menemukan bahasa untuk merefleksikan perasaan. Konten ini bukan alat diagnosis atau pengganti psikolog, psikiater, dokter, maupun layanan krisis.</p>
+                </section>
+                <section class="about-card reminder-card" aria-labelledby="reminderTitle">
+                    <div class="reminder-heading">
+                        <div class="reminder-icon" aria-hidden="true">🔔</div>
+                        <div>
+                            <h2 id="reminderTitle">Pengingat harian</h2>
+                            <p id="reminderDescription">Pilih waktu untuk mengingatkanmu melakukan check-in emosi.</p>
+                        </div>
+                    </div>
+                    <div class="reminder-settings">
+                        <label class="reminder-time-label" for="reminderTime">
+                            <span id="reminderTimeLabel">Waktu pengingat</span>
+                            <input type="time" id="reminderTime" class="reminder-time" value="20:00" onchange="saveReminderTime()">
+                        </label>
+                        <div class="reminder-actions">
+                            <button type="button" class="btn-primary reminder-toggle" id="reminderToggle" onclick="toggleDailyReminder()">Aktifkan pengingat</button>
+                            <button type="button" class="btn-secondary reminder-test" id="reminderTest" onclick="sendDailyReminder(true)">Kirim tes</button>
+                        </div>
+                    </div>
+                    <div class="reminder-status" id="reminderStatus" role="status" aria-live="polite">Pengingat belum aktif.</div>
+                    <p class="reminder-help" id="reminderHelp">Notifikasi dijalankan oleh PWA saat tersedia. Pada beberapa perangkat, pengingat mungkin tidak muncul jika aplikasi benar-benar ditutup.</p>
+                </section>
+                <section class="about-card crisis-card">
+                    <h2 id="aboutCrisisTitle">Saat membutuhkan bantuan segera</h2>
+                    <p id="aboutCrisis">Jika kamu atau orang lain berada dalam bahaya, hubungi layanan darurat setempat dan orang tepercaya. Untuk dukungan berkelanjutan, pertimbangkan tenaga kesehatan mental profesional.</p>
+                </section>
+                <section class="about-card">
+                    <h2 id="aboutCreditTitle">Kredit dan bahasa</h2>
+                    <p id="aboutCredit">Konsep dan penjelasan diadaptasi dari materi Box of Emotions yang diberikan pemilik proyek. Terjemahan tersedia dalam Indonesia, Inggris, dan Mandarin; istilah budaya dipertahankan bila tidak memiliki padanan langsung.</p>
+                </section>
+                <section class="about-card">
+                    <h2 id="aboutPrivacyTitle">Privasi</h2>
+                    <p id="aboutPrivacy">Mode tamu menyimpan data hanya di perangkat ini. Akun terdaftar menyimpan kata sandi dalam bentuk hash dan menyinkronkan catatan, favorit, serta riwayat melalui backend.</p>
+                </section>
+            </div>
+
         </div>
+
+        <button type="button" class="scroll-fab" id="scrollFab" onclick="scrollToTop()" aria-label="Back to top" title="Back to top">
+            <span aria-hidden="true">↑</span>
+        </button>
 
         <!-- BOTTOM NAVIGATION -->
         <div class="bottom-nav" id="bottomNav">
-            <div class="nav-item active" id="navEmo" onclick="switchTab('emotions')">
+            <button type="button" class="nav-item active" id="navEmo" onclick="switchTab('emotions')">
                 <div class="nav-icon">📦</div>
                 <span id="lblNavEmo">Emosi</span>
-            </div>
-            <div class="nav-item" id="navLib" onclick="switchTab('library')">
+            </button>
+            <button type="button" class="nav-item" id="navLib" onclick="switchTab('library')">
                 <div class="nav-icon">📚</div>
                 <span id="lblNavLib">Pustaka</span>
-            </div>
-            <div class="nav-item" id="navNote" onclick="switchTab('notes')">
+            </button>
+            <button type="button" class="nav-item" id="navNote" onclick="switchTab('notes')">
                 <div class="nav-icon">📝</div>
                 <span id="lblNavNote">Catatan</span>
-            </div>
+            </button>
+            <button type="button" class="nav-item" id="navAbout" onclick="switchTab('about')">
+                <div class="nav-icon">ℹ️</div>
+                <span id="lblNavAbout">Tentang</span>
+            </button>
         </div>
 
     </div>
 
-    <script>
-        // --- State Management ---
-        let isLogin = false;
-        let currentUser = "";
-        let currentLang = 'id'; // 'id' | 'en' | 'zh'
-        let currentTheme = 'light';
-        let currentEmotionView = 'home'; // 'home' | 'subs' | 'detail'
-        let activeCategory = '';
-
-        // --- Multi-Language Data & Comprehensive Essay Database ---
-        const uiText = {
-            id: {
-                brand: "Box of Emotion", langBtn: "EN",
-                authRegTitle: "Buat Akun ✨", authRegSub: "Mulai kenali dan kelola emosimu hari ini.", btnReg: "Daftar Sekarang",
-                authLogTitle: "Selamat Datang 👋", authLogSub: "Masuk untuk melanjutkan perjalananmu.", btnLog: "Masuk",
-                switchLog: "Sudah punya akun? ", switchLogAct: "Masuk di sini",
-                switchReg: "Belum punya akun? ", switchRegAct: "Daftar di sini",
-                lblUser: "Nama Panggilan", lblPass: "Kata Sandi",
-                toastErrEmpty: "Nama & kata sandi wajib diisi!", toastErrWrong: "Data tidak cocok!", toastOkReg: "Akun siap! Silakan masuk.", toastOkNote: "Catatan disimpan!", toastDelNote: "Catatan dihapus.",
-                hello: "Selamat datang,", logout: "Keluar",
-                dashTitle: "Bagaimana perasaanmu?", dashSub: "Pilih spektrum emosi di bawah ini.",
-                subPrompt: "Pilih yang paling mewakili kondisimu:",
-                btnBack: "Kembali", variations: "Variasi", clickRefl: "Lihat Esai & Refleksi",
-                lblRefl: "💡 Refleksi & Esai", lblAdv: "🌱 Saran Tindakan", lblSeeAlso: "🔗 Terkait",
-                navEmo: "Emosi", navLib: "Pustaka", navNote: "Catatan",
-                libTitle: "Pustaka Emosi 📚", libSub: "Kumpulan lengkap esai mendalam seluruh kategori spektrum emosi.",
-                notesTitle: "Catatan Saya 📝", notesSub: "Tuliskan pikiran dan perasaanmu di sini.",
-                emptyNote: "Belum ada catatan.", createNoteTitle: "Tulis Catatan ✍️",
-                noteHolder: "Tulis sesuatu...", btnCancel: "Batal", btnSave: "Simpan",
-                curhatTitle: "✍️ Curhat Dulu, Yuk", curhatSub: "Tulis apa yang kamu rasakan, biar sistem coba menebak emosinya.",
-                curhatPlaceholder: "Cth: aku lagi bete banget sama kerjaan...", curhatBtn: "Analisa Perasaanku",
-                curhatEmpty: "Tulis dulu ceritanya ya!", curhatSeeDetail: "Lihat Detail Emosi Ini →",
-                curhatOffline: "Server analisis (app.py) belum jalan. Coba jalankan 'python app.py' di komputer kamu dulu ya.",
-                curhatResultLabel: "Hasil deteksi:"
-            },
-            en: {
-                brand: "Emotion Box", langBtn: "中文",
-                authRegTitle: "Create Account ✨", authRegSub: "Start recognizing and managing your emotions.", btnReg: "Sign Up",
-                authLogTitle: "Welcome Back 👋", authLogSub: "Sign in to continue your journey.", btnLog: "Sign In",
-                switchLog: "Already have an account? ", switchLogAct: "Sign in here",
-                switchReg: "Don't have an account? ", switchRegAct: "Sign up here",
-                lblUser: "Nickname", lblPass: "Password",
-                toastErrEmpty: "Username & password required!", toastErrWrong: "Incorrect credentials!", toastOkReg: "Account ready! Please log in.", toastOkNote: "Note saved!", toastDelNote: "Note deleted.",
-                hello: "Welcome,", logout: "Logout",
-                dashTitle: "How are you feeling?", dashSub: "Choose an emotion spectrum below.",
-                subPrompt: "Select what best represents your state:",
-                btnBack: "Back", variations: "Variations", clickRefl: "View Essay & Reflection",
-                lblRefl: "💡 Essay & Reflection", lblAdv: "🌱 Action Plan", lblSeeAlso: "🔗 See Also",
-                navEmo: "Emotions", navLib: "Library", navNote: "Notes",
-                notesTitle: "My Notes 📝", notesSub: "Write down your thoughts and feelings here.",
-                libTitle: "Emotion Library 📚", libSub: "Comprehensive collection of deep essays across all emotion spectrums.",
-                emptyNote: "No notes yet.", createNoteTitle: "Write Note ✍️",
-                noteHolder: "Write something...", btnCancel: "Cancel", btnSave: "Save",
-                curhatTitle: "✍️ Tell Me What's Up", curhatSub: "Write what you're feeling and let the system guess the emotion.",
-                curhatPlaceholder: "e.g. I'm so annoyed at work right now...", curhatBtn: "Analyze My Feeling",
-                curhatEmpty: "Write something first!", curhatSeeDetail: "See This Emotion's Detail →",
-                curhatOffline: "The analysis server (app.py) isn't running. Try running 'python app.py' on your computer first.",
-                curhatResultLabel: "Detected result:"
-            },
-            zh: {
-                brand: "情绪魔方", langBtn: "ID",
-                authRegTitle: "创建账号 ✨", authRegSub: "开始认识并管理您的情绪。", btnReg: "立即注册",
-                authLogTitle: "欢迎回来 👋", authLogSub: "登录以继续您的旅程。", btnLog: "登录",
-                switchLog: "已有账号？ ", switchLogAct: "在此登录",
-                switchReg: "没有账号？ ", switchRegAct: "在此注册",
-                lblUser: "昵称", lblPass: "密码",
-                toastErrEmpty: "请输入用户名和密码！", toastErrWrong: "账号或密码错误！", toastOkReg: "账号创建成功！请登录。", toastOkNote: "笔记已保存！", toastDelNote: "笔记已删除。",
-                hello: "欢迎，", logout: "退出",
-                dashTitle: "你现在感觉怎么样？", dashSub: "请选择下方的情绪谱系。",
-                subPrompt: "选择最能代表你当前状态的选项：",
-                btnBack: "返回", variations: "种变化", clickRefl: "查看详细散文与反思",
-                lblRefl: "💡 散文与反思", lblAdv: "🌱 行动建议", lblSeeAlso: "🔗 相关链接",
-                navEmo: "情绪", navLib: "文库", navNote: "笔记",
-                libTitle: "情绪文库 📚", libSub: "收录了所有情绪光谱的深度散文与解析合集。",
-                notesTitle: "我的笔记 📝", notesSub: "在这里写下你的想法和感受。",
-                emptyNote: "暂无笔记。", createNoteTitle: "写笔记 ✍️",
-                noteHolder: "写点什么...", btnCancel: "取消", btnSave: "保存",
-                curhatTitle: "✍️ 先说说心事吧", curhatSub: "写下你的感受，让系统猜猜你的情绪。",
-                curhatPlaceholder: "例如：我现在对工作感到很烦躁...", curhatBtn: "分析我的情绪",
-                curhatEmpty: "请先写点内容！", curhatSeeDetail: "查看此情绪详情 →",
-                curhatOffline: "分析服务器（app.py）尚未运行。请先在你的电脑上运行 'python app.py'。",
-                curhatResultLabel: "检测结果："
-            }
-        };
-        const emotionDB = {
-            zen: {
-                icon: "🧘",
-                color: "#0891b2",
-                title: { id: "Zen (Ketenangan & Kedamaian)", en: "Zen (Serenity & Peace)", zh: "禅意（宁静与平和）" },
-                subs: {
-                    id: [
-                        { emoji: "🌊", name: "Serenity", reflection: "Serenity adalah ketenangan batin yang sangat dalam, seolah waktu melambat dan beban dunia diangkat sejenak dari pundak kita. Berbeda dengan kebahagiaan yang bergejolak, sereniti tidak membutuhkan alasan eksternal yang riuh; ia lahir dari keselarasan internal yang utuh. Saat merasakannya, detak jantung melambat, pikiran menjadi jernih, dan kita mampu berdiri teguh menghadapi dinamika hidup dengan kepala dingin.", advice: "Nikmati keheningan sejenak, lakukan pernapasan diafragma yang dalam untuk mengunci ketenangan ini.", seeAlso: "TRANQUILITY, PACE, AWE" },
-                        { emoji: "🍃", name: "Tranquility", reflection: "Jika sereniti berakar dari dalam diri, tranquility adalah keheningan eksternal yang merambat masuk ke dalam jiwa. Emosi ini tercipta dari lingkungan yang selaras, bebas dari polusi suara, bisingnya tuntutan sosial, dan kekacauan dunia modern. Ia bertindak sebagai oase mental, memulihkan energi kognitif yang terkuras habis oleh rutinitas harian.", advice: "Cari sudut yang tenang, matikan notifikasi gawai, dan biarkan pikiranmu beristirahat.", seeAlso: "SERENITY, PACE, REVERIE" },
-                        { emoji: "✨", name: "Wonder", reflection: "Wonder adalah rasa takjub yang murni, polos, dan tidak tercemar oleh kepentingan duniawi, menyerupai cara anak kecil memandang dunia untuk pertama kalinya. Emosi ini membuat kita berhenti sejenak dari rutinitas otomatis kita dan melihat keajaiban-keajaiban kecil di sekeliling yang sering kali terabaikan oleh mata orang dewasa.", advice: "Amati detail kecil di sekitarmu yang biasanya terlewatkan.", seeAlso: "AWE, CURIOSITY, HOPE" },
-                        { emoji: "⏱️", name: "Pace", reflection: "Pace adalah bentuk kepuasan yang selaras dalam menikmati ritme hidup yang lambat, berkesadaran (mindful), dan tidak terburu-buru. Emosi ini mengajarkan kita untuk melepaskan diri dari tirani produktivitas toksik, mengingatkan kita bahwa hidup bukanlah sebuah perlombaan yang harus dimenangkan, melainkan perjalanan yang patut dirasakan di setiap detik langkahnya.", advice: "Kurangi kecepatan, nikmati proses melakukan sesuatu tanpa tergesa-gesa.", seeAlso: "SERENITY, TRANQUILITY, HYGGE" },
-                        { emoji: "☀️", name: "Komorebi", reflection: "Komorebi adalah istilah estetika kultural tentang pendaran cahaya matahari yang menembus celah-celah dedaunan pohon. Emosi ini menghadirkan rasa hangat yang melankolis sekaligus menenangkan, memicu kesadaran puitis tentang keindahan fana alam semesta yang selalu bergerak namun tetap harmonis.", advice: "Keluar sebentar ke luar ruangan dan rasakan kehangatan cahaya matahari.", seeAlso: "AWE, WONDER, NOSTALGIA" }
-                    ],
-                    en: [
-                        { emoji: "🌊", name: "Serenity", reflection: "Serenity is deep inner tranquility, as if time slows down and worldly burdens are lifted. Unlike volatile happiness, serenity needs no external noise; it stems from inner alignment.", advice: "Enjoy the silence and practice deep breathing.", seeAlso: "TRANQUILITY, PACE, AWE" },
-                        { emoji: "🍃", name: "Tranquility", reflection: "Tranquility is external quietness seeping into the soul, created by a harmonious environment free from noise and social demands.", advice: "Find a quiet corner and disconnect.", seeAlso: "SERENITY, PACE, REVERIE" },
-                        { emoji: "✨", name: "Wonder", reflection: "Wonder is pure, uncorrupted awe, akin to a child seeing the world for the first time.", advice: "Observe the small everyday miracles around you.", seeAlso: "AWE, CURIOSITY, HOPE" },
-                        { emoji: "⏱️", name: "Pace", reflection: "Pace is the harmonious satisfaction of enjoying a slow, mindful, unhurried rhythm of life.", advice: "Slow down and savor the journey.", seeAlso: "SERENITY, TRANQUILITY, HYGGE" },
-                        { emoji: "☀️", name: "Komorebi", reflection: "Komorebi is the cultural aesthetic of sunlight filtering through tree leaves, bringing a melancholic yet soothing warmth.", advice: "Step outside and feel the gentle sunlight.", seeAlso: "AWE, WONDER, NOSTALGIA" }
-                    ],
-                    zh: [
-                        { emoji: "🌊", name: "宁静 (Serenity)", reflection: "宁静是一种深层的内心平静，仿佛时间放慢了脚步。它不需要外界的喧嚣，源于内在的和谐。", advice: "享受片刻的安宁，做几次深呼吸。", seeAlso: "TRANQUILITY, PACE, AWE" },
-                        { emoji: "🍃", name: "平和 (Tranquility)", reflection: "平和是外在的寂静滲入灵魂，由和谐的环境、远离噪音和社交需求所创造。", advice: "寻找一个安静的角落，断开电子设备的连接。", seeAlso: "SERENITY, PACE, REVERIE" },
-                        { emoji: "✨", name: "惊叹 (Wonder)", reflection: "惊叹是一种纯粹、未被污染的敬畏，类似于孩子第一次看世界时的眼光。", advice: "观察身边的微小奇迹。", seeAlso: "AWE, CURIOSITY, HOPE" },
-                        { emoji: "⏱️", name: "节奏 (Pace)", reflection: "节奏是享受缓慢、正念且不慌不忙的生活节奏所带来的和谐满足感。", advice: "放慢脚步，品味当下。", seeAlso: "SERENITY, TRANQUILITY, HYGGE" },
-                        { emoji: "☀️", name: "木漏日 (Komorebi)", reflection: "木漏日是指阳光透过树叶缝隙洒下的斑驳光影，带来一种既忧郁又舒缓的温暖感。", advice: "走到户外，感受阳光的轻抚。", seeAlso: "AWE, WONDER, NOSTALGIA" }
-                    ]
-                }
-            },
-            bliss: {
-                icon: "🌟",
-                color: "#f59e0b",
-                title: { id: "Bliss (Puncak Kebahagiaan)", en: "Bliss (Peak Happiness)", zh: "极乐（幸福巅峰）" },
-                subs: {
-                    id: [
-                        { emoji: "🎉", name: "Joy", reflection: "Joy adalah pancaran sukacita spontan yang meletup-letup dari dalam hati tanpa membutuhkan alasan logis yang rumit. Ini adalah energi murni yang membuat hidup terasa ringan dan cerah.", advice: "Rayakan momen ringan ini dan bagikan senyumanmu.", seeAlso: "ELATION, EUPHORIA, GLEE" },
-                        { emoji: "🚀", name: "Elation", reflection: "Elation adalah sensasi melayang yang luar biasa akibat kegembiraan besar, biasanya hadir sebagai buah manis dari sebuah pencapaian puncak setelah perjuangan panjang.", advice: "Nikmati buah dari kerja kerasmu.", seeAlso: "JOY, EUPHORIA, TRIUMPH" },
-                        { emoji: "🌈", name: "Euphoria", reflection: "Euphoria adalah kebahagiaan intens yang meluap-luap hingga mengaburkan akal sehat biasa, digantikan oleh rasa kebebasan mutlak.", advice: "Hati-hati agar tidak membuat keputusan gegabah saat terlalu bersemangat.", seeAlso: "ELATION, ECSTASY, ZEST" },
-                        { emoji: "🔥", name: "Ecstasy", reflection: "Ecstasy adalah puncak kenikmatan dan kegembiraan ekstrem yang membuat seseorang kehilangan kesadaran diri atau batas ego, melebur ke dalam pengalaman indrawi.", advice: "Biarkan dirimu meresapi pengalaman transenden ini sepenuhnya.", seeAlso: "EUPHORIA, BLISS, MERAKI" },
-                        { emoji: "😁", name: "Glee", reflection: "Glee adalah keceriaan riang yang sedikit nakal, terpancar lewat tawa tertahan atau senyum berbinar atas lelucon kecil atau kejutan manis.", advice: "Nikmati kesenangan sederhana yang menggelitik harimu.", seeAlso: "JOY, AMUSEMENT, DELIGHT" },
-                        { emoji: "☕", name: "Hygge", reflection: "Hygge adalah konsep kehangatan dan kenyamanan mutlak bersama orang tercinta di ruang aman dengan hal-hal sederhana seperti secangkir teh hangat.", advice: "Ciptakan suasana nyaman di rumahmu hari ini.", seeAlso: "PACE, COMFORT, REVERIE" },
-                        { emoji: "🎨", name: "Meraki", reflection: "Meraki adalah kepuasan batin utuh ketika seseorang mencurahkan segenap jiwa dan kreativitasnya ke dalam sebuah pekerjaan atau karya.", advice: "Teruslah berkarya dengan sepenuh hati.", seeAlso: "INSPIRATION, ZEST, SATISFACTION" }
-                    ],
-                    en: [
-                        { emoji: "🎉", name: "Joy", reflection: "Joy is spontaneous happiness bursting from within without complex logical reasons, making life feel light and bright.", advice: "Celebrate this moment and share your smile.", seeAlso: "ELATION, EUPHORIA, GLEE" },
-                        { emoji: "🚀", name: "Elation", reflection: "Elation is a floating sensation of great joy, usually the sweet fruit of a peak achievement after a long struggle.", advice: "Savor the reward of your hard work.", seeAlso: "JOY, EUPHORIA, TRIUMPH" },
-                        { emoji: "🌈", name: "Euphoria", reflection: "Euphoria is intense overflowing happiness that blurs ordinary common sense, replaced by absolute freedom.", advice: "Ground yourself while enjoying the high energy.", seeAlso: "ELATION, ECSTASY, ZEST" },
-                        { emoji: "🔥", name: "Ecstasy", reflection: "Ecstasy is peak extreme joy making one transcend ordinary reality and ego boundaries.", advice: "Immerse yourself fully in this transcendent experience.", seeAlso: "EUPHORIA, BLISS, MERAKI" },
-                        { emoji: "😁", name: "Glee", reflection: "Glee is mischievous, lighthearted cheerfulness sparked by small jokes or sweet surprises.", advice: "Enjoy the little quirks that tickle your day.", seeAlso: "JOY, AMUSEMENT, DELIGHT" },
-                        { emoji: "☕", name: "Hygge", reflection: "Hygge is absolute coziness and warmth with loved ones in a safe space with simple comforts.", advice: "Create a cozy atmosphere at home today.", seeAlso: "PACE, COMFORT, REVERIE" },
-                        { emoji: "🎨", name: "Meraki", reflection: "Meraki is the soul satisfaction of pouring your heart and creativity into work or art.", advice: "Continue creating with all your heart.", seeAlso: "INSPIRATION, ZEST, SATISFACTION" }
-                    ],
-                    zh: [
-                        { emoji: "🎉", name: "喜悦 (Joy)", reflection: "喜悦是从内而外爆发的自发快乐，不需要复杂的逻辑理由，让生活变得轻盈明亮。", advice: "庆祝这一刻，分享你的微笑。", seeAlso: "ELATION, EUPHORIA, GLEE" },
-                        { emoji: "🚀", name: "兴高采烈 (Elation)", reflection: "兴高采烈是一种由巨大快乐带来的飘飘然感，通常是经历长期奋斗后达到巅峰成就的甜美果实。", advice: "品尝你努力工作的回报。", seeAlso: "JOY, EUPHORIA, TRIUMPH" },
-                        { emoji: "🌈", name: "狂喜 (Euphoria)", reflection: "狂喜是满溢的强烈幸福感，模糊了寻常的常识，取而代之的是绝对的自由感。", advice: "在享受高能量的同时保持脚踏实地。", seeAlso: "ELATION, ECSTASY, ZEST" },
-                        { emoji: "🔥", name: "极乐 (Ecstasy)", reflection: "极乐是超越寻常现实和自我边界的极致快乐与喜悦顶点。", advice: "全身心沉浸在这种超越日常的体验中。", seeAlso: "EUPHORIA, BLISS, MERAKI" },
-                        { emoji: "😁", name: "雀跃 (Glee)", reflection: "雀跃是一种略带淘气的轻松愉快，通过小笑话或甜蜜惊喜引发。", advice: "享受点缀你一天的纯真乐趣。", seeAlso: "JOY, AMUSEMENT, DELIGHT" },
-                        { emoji: "☕", name: "抱抱时光 (Hygge)", reflection: "Hygge是在安全空间里与挚爱之人共享绝对温馨与舒适的概念。", advice: "今天为自己创造一个舒适的居家氛围。", seeAlso: "PACE, COMFORT, REVERIE" },
-                        { emoji: "🎨", name: "倾心投入 (Meraki)", reflection: "倾心投入是将全部灵魂与创造力倾注于工作或艺术中的内在满足感。", advice: "继续用你的全部心血去创造。", seeAlso: "INSPIRATION, ZEST, SATISFACTION" }
-                    ]
-                }
-            },
-            enjoyment: {
-                icon: "🎈",
-                color: "#ec4899",
-                title: { id: "Enjoyment (Kenikmatan & Kesenangan)", en: "Enjoyment (Pleasure & Fun)", zh: "愉悦（享受与乐趣）" },
-                subs: {
-                    id: [
-                        { emoji: "🎭", name: "Amusement", reflection: "Amusement adalah rasa terhibur ringan yang menggelitik pikiran dan menerbitkan senyuman, lahir ketika kita melihat kekonyolan kecil atau sisi jenaka kehidupan.", advice: "Tertawalah pada hal-hal lucu di sekitarmu.", seeAlso: "DELIGHT, MIRTH, GLEE" },
-                        { emoji: "🎁", name: "Delight", reflection: "Delight adalah kesenangan murni yang datang secara tiba-tiba dari hal-hal sepele yang tak terduga—seperti menemukan uang di saku lama atau mencium aroma hujan.", advice: "Syukuri kejutan-kejutan kecil hari ini.", seeAlso: "AMUSEMENT, JOY, WONDER" },
-                        { emoji: "🥂", name: "Mirth", reflection: "Mirth adalah kesenangan komunal yang hidup; gelak tawa dan kegembiraan yang dikongsi bersama orang lain, meruntuhkan kecanggungan sosial.", advice: "Kumpul dan habiskan waktu bersama orang terdekat.", seeAlso: "AMUSEMENT, GLEE, JOY" },
-                        { emoji: "✅", name: "Satisfaction", reflection: "Satisfaction adalah kelegaan mendalam dan rasa cukup setelah menyelesaikan tugas berat atau memenuhi kebutuhan dasar tubuh dengan baik.", advice: "Istirahatlah dengan tenang karena tugasmu telah usai.", seeAlso: "TRIUMPH, ZEST, SERENITY" },
-                        { emoji: "⚡", name: "Zest", reflection: "Zest adalah antusiasme menyala-nyala dan gairah hidup tinggi untuk terjun langsung menikmati pengalaman baru setiap hari.", advice: "Gunakan energi positif ini untuk mencoba hal baru.", seeAlso: "EUPHORIA, ENERGY, CURIOSITY" },
-                        { emoji: "💭", name: "Reverie", reflection: "Reverie adalah lamunan manis yang membawa pikiran mengembara menjauh dari realitas penat, menciptakan ruang peristirahatan bagi imajinasi.", advice: "Biarkan imajinasimu merajut mimpi indah sejenak.", seeAlso: "TRANQUILITY, WONDER, NOSTALGIA" }
-                    ],
-                    en: [
-                        { emoji: "🎭", name: "Amusement", reflection: "Amusement is light entertainment that tickles the mind and brings a smile, born from seeing small silliness.", advice: "Laugh at the funny things around you.", seeAlso: "DELIGHT, MIRTH, GLEE" },
-                        { emoji: "🎁", name: "Delight", reflection: "Delight is pure pleasure coming suddenly from trivial unexpected things like finding money in an old pocket.", advice: "Appreciate today's small surprises.", seeAlso: "AMUSEMENT, JOY, WONDER" },
-                        { emoji: "🥂", name: "Mirth", reflection: "Mirth is communal living pleasure; shared laughter and joy that breaks social awkwardness.", advice: "Gather and spend time with loved ones.", seeAlso: "AMUSEMENT, GLEE, JOY" },
-                        { emoji: "✅", name: "Satisfaction", reflection: "Satisfaction is deep relief and a sense of enough after completing a heavy task or fulfilling needs.", advice: "Rest well knowing you've done your part.", seeAlso: "TRIUMPH, ZEST, SERENITY" },
-                        { emoji: "⚡", name: "Zest", reflection: "Zest is blazing enthusiasm and high zest for life to dive into new daily experiences.", advice: "Use this energy to try something new.", seeAlso: "EUPHORIA, ENERGY, CURIOSITY" },
-                        { emoji: "💭", name: "Reverie", reflection: "Reverie is sweet daydreaming carrying the mind away from tired reality, creating a resting space.", advice: "Let your imagination weave beautiful dreams.", seeAlso: "TRANQUILITY, WONDER, NOSTALGIA" }
-                    ],
-                    zh: [
-                        { emoji: "🎭", name: "消遣 (Amusement)", reflection: "消遣是一种轻松的娱乐，触动思维并带来微笑，诞生于发现生活中的小滑稽或幽默时。", advice: "对身边的趣事笑一笑。", seeAlso: "DELIGHT, MIRTH, GLEE" },
-                        { emoji: "🎁", name: "欣喜 (Delight)", reflection: "欣喜是突然从小事中获得的纯粹快乐，比如在旧口袋里找到钱或闻到雨后的青草香。", advice: "感恩今天的小小惊喜。", seeAlso: "AMUSEMENT, JOY, WONDER" },
-                        { emoji: "🥂", name: "欢乐 (Mirth)", reflection: "欢乐是社群式的热烈快乐；与他人分享的笑声和喜悦，能打破社交尴尬。", advice: "与亲近的人聚聚，共度美好时光。", seeAlso: "AMUSEMENT, GLEE, JOY" },
-                        { emoji: "✅", name: "满足 (Satisfaction)", reflection: "满足是完成重任或好好照顾自己基本需求后获得的深层放松感。", advice: "安心休息，你已经尽力了。", seeAlso: "TRIUMPH, ZEST, SERENITY" },
-                        { emoji: "⚡", name: "热情 (Zest)", reflection: "热情是炽热的积极性和对生活的高度激情，每天都渴望投入到全新的体验中。", advice: "利用这股正能量去尝试新事物。", seeAlso: "EUPHORIA, ENERGY, CURIOSITY" },
-                        { emoji: "💭", name: "白日梦 (Reverie)", reflection: "白日梦是甜蜜的遐想，让思绪远离疲惫的现实，为想象力创造一个休憩的空间。", advice: "让想象力编织一会儿美梦。", seeAlso: "TRANQUILITY, WONDER, NOSTALGIA" }
-                    ]
-                }
-            },
-            possibility: {
-                icon: "🌱",
-                color: "#10b981",
-                title: { id: "Possibility (Harapan & Peluang)", en: "Possibility (Hope & Opportunity)", zh: "可能性（希望与机遇）" },
-                subs: {
-                    id: [
-                        { emoji: "🕯️", name: "Hope", reflection: "Hope adalah jangkar psikologis yang menjaga kita tetap tegak di tengah kegelapan, berakar pada keyakinan bahwa masa depan belum tertulis.", advice: "Percayalah bahwa usahamu hari ini akan mengubah hari esok.", seeAlso: "OPTIMISM, ANTICIPATION, INSPIRATION" },
-                        { emoji: "☀️", name: "Optimism", reflection: "Optimism adalah sudut pandang mental yang secara konsisten melihat sisi terang dan potensi keberhasilan di balik setiap rintangan.", advice: "Fokus pada peluang di balik tantangan yang ada.", seeAlso: "HOPE, CURIOSITY, WONDER" },
-                        { emoji: "⏳", name: "Anticipation", reflection: "Anticipation adalah rasa berdebar-debar bercampur penasaran sehat saat menghitung hari menjelang datangnya sebuah peristiwa penting.", advice: "Nikmati proses penantian dengan antusias.", seeAlso: "HOPE, CURIOSITY, APPREHENSION" },
-                        { emoji: "🌍", name: "Wanderlust", reflection: "Wanderlust adalah dorongan liar di dalam jiwa untuk melangkah keluar, menjelajahi tempat asing, dan melihat luasnya dunia.", advice: "Rencanakan petualangan atau perjalanan kecil berikutnya.", seeAlso: "CURIOSITY, HOPE, AWE" }
-                    ],
-                    en: [
-                        { emoji: "🕯️", name: "Hope", reflection: "Hope is the psychological anchor keeping us upright in darkness, rooted in the belief that the future is unwritten.", advice: "Believe your effort today shapes tomorrow.", seeAlso: "OPTIMISM, ANTICIPATION, INSPIRATION" },
-                        { emoji: "☀️", name: "Optimism", reflection: "Optimism is a mental viewpoint consistently seeing the bright side and potential success behind every obstacle.", advice: "Focus on opportunities behind current challenges.", seeAlso: "HOPE, CURIOSITY, WONDER" },
-                        { emoji: "⏳", name: "Anticipation", reflection: "Anticipation is thumping excitement mixed with healthy curiosity counting down days to an important event.", advice: "Enjoy the waiting process enthusiastically.", seeAlso: "HOPE, CURIOSITY, APPREHENSION" },
-                        { emoji: "🌍", name: "Wanderlust", reflection: "Wanderlust is the wild urge within the soul to step out, explore foreign places, and see the world.", advice: "Plan your next small adventure or journey.", seeAlso: "CURIOSITY, HOPE, AWE" }
-                    ],
-                    zh: [
-                        { emoji: "🕯️", name: "希望 (Hope)", reflection: "希望是让我们在黑暗中保持挺立的心理锚，根植于对未来尚未书写的信念。", advice: "相信今天的努力会改变明天。", seeAlso: "OPTIMISM, ANTICIPATION, INSPIRATION" },
-                        { emoji: "☀️", name: "乐观 (Optimism)", reflection: "乐观是一种心理视角， consistently 看到每次障碍背后的光明面和成功潜力。", advice: "专注于现有挑战背后的机遇。", seeAlso: "HOPE, CURIOSITY, WONDER" },
-                        { emoji: "⏳", name: "期待 (Anticipation)", reflection: "期待是在倒计时等待重要事件或旅行到来时，混合着健康好奇心的心跳加速感。", advice: "满怀热情地享受等待的过程。", seeAlso: "HOPE, CURIOSITY, APPREHENSION" },
-                        { emoji: "🌍", name: "漫游癖 (Wanderlust)", reflection: "漫游癖是灵魂深处想要走出去、探索陌生地方、看广阔世界的狂野冲动。", advice: "规划你的下一次小型冒险或旅程。", seeAlso: "CURIOSITY, HOPE, AWE" }
-                    ]
-                }
-            },
-            ego: {
-                icon: "👑",
-                color: "#a855f7",
-                title: { id: "Ego (Kebanggaan & Citra Diri)", en: "Ego (Pride & Self-Image)", zh: "自我（自豪与形象）" },
-                subs: {
-                    id: [
-                        { emoji: "🏅", name: "Pride", reflection: "Pride adalah rasa hormat dan kepuasan sehat atas pencapaian diri sendiri atau kerja keras orang terdekat, memperkuat harga diri tanpa merendahkan.", advice: "Hargai usahamu dengan sewajarnya.", seeAlso: "TRIUMPH, SIGNIFICANCE, VANITY" },
-                        { emoji: "🪞", name: "Vanity", reflection: "Vanity adalah kepedulian berlebihan terhadap citra permukaan, penampilan luar, atau validasi semu yang menutupi kerapuhan internal.", advice: "Kenali nilai dirimu dari dalam, bukan dari pandangan luar.", seeAlso: "HUBRIS, SUPERIORITY, EGO" },
-                        { emoji: "🏆", name: "Triumph", reflection: "Triumph adalah kegembiraan penuh kemenangan setelah berhasil menaklukkan tantangan besar atau membuktikan kapasitas diri.", advice: "Rayakan kemenanganmu dengan penuh syukur.", seeAlso: "ELATION, PRIDE, EXASPERATION" },
-                        { emoji: "⭐", name: "Significance", reflection: "Significance adalah perasaan utuh bahwa keberadaan dan tindakan kita bermakna serta meninggalkan jejak positif bagi lingkungan.", advice: "Teruslah berbuat baik dan memberi dampak positif.", seeAlso: "PRIDE, HOPE, SATISFACTION" },
-                        { emoji: "👑", name: "Superiority", reflection: "Superiority adalah ilusi mental yang meyakini diri memiliki kedudukan atau moralitas lebih tinggi, sering menjadi akar merendahkan sesama.", advice: "Ingatlah bahwa setiap manusia memiliki keunikan dan nilai yang setara.", seeAlso: "HUBRIS, CONTEMPT, VANITY" }
-                    ],
-                    en: [
-                        { emoji: "🏅", name: "Pride", reflection: "Pride is healthy respect and satisfaction over personal achievements or loved ones' hard work, strengthening self-esteem.", advice: "Appreciate your efforts fairly.", seeAlso: "TRIUMPH, SIGNIFICANCE, VANITY" },
-                        { emoji: "🪞", name: "Vanity", reflection: "Vanity is excessive concern for surface image or false validation masking internal fragility.", advice: "Acknowledge your true worth from within.", seeAlso: "HUBRIS, SUPERIORITY, EGO" },
-                        { emoji: "🏆", name: "Triumph", reflection: "Triumph is victorious joy after conquering major challenges or proving self-capacity.", advice: "Celebrate your victory with gratitude.", seeAlso: "ELATION, PRIDE, EXASPERATION" },
-                        { emoji: "⭐", name: "Significance", reflection: "Significance is the complete feeling that our existence and actions are meaningful and leave a positive trace.", advice: "Keep doing good and making an impact.", seeAlso: "PRIDE, HOPE, SATISFACTION" },
-                        { emoji: "👑", name: "Superiority", reflection: "Superiority is the mental illusion of having higher status or morality, often leading to looking down on others.", advice: "Remember everyone has equal human worth.", seeAlso: "HUBRIS, CONTEMPT, VANITY" }
-                    ],
-                    zh: [
-                        { emoji: "🏅", name: "自豪 (Pride)", reflection: "自豪是对个人成就或挚爱辛勤工作的一种健康的尊重与满足，在不贬低他人的前提下增强自尊。", advice: "恰如其分地肯定自己的努力。", seeAlso: "TRIUMPH, SIGNIFICANCE, VANITY" },
-                        { emoji: "🪞", name: "虚荣 (Vanity)", reflection: "虚荣是对表面形象、外在表现或虚假赞许的过度关注，往往掩盖了内心的脆弱。", advice: "从内心而非外界认可来认识你的真实价值。", seeAlso: "HUBRIS, SUPERIORITY, EGO" },
-                        { emoji: "🏆", name: "凯旋 (Triumph)", reflection: "凯旋是成功征服重大挑战或证明自身能力后充满胜利的喜悦。", advice: "怀着感恩的心庆祝你的胜利。", seeAlso: "ELATION, PRIDE, EXASPERATION" },
-                        { emoji: "⭐", name: "重要感 (Significance)", reflection: "重要感是一种完整的感受，觉得我们的存在和行动是有意义的，并为周围环境留下了积极的印记。", advice: "继续行善并产生积极的影响。", seeAlso: "PRIDE, HOPE, SATISFACTION" },
-                        { emoji: "👑", name: "优越感 (Superiority)", reflection: "优越感是一种心理幻觉，认为自己拥有比他人更高的地位或道德，常常是看不起别人的根源。", advice: "记住每个人都有平等的尊严和价值。", seeAlso: "HUBRIS, CONTEMPT, VANITY" }
-                    ]
-                }
-            },
-            heat: {
-                icon: "🔥",
-                color: "#ef4444",
-                title: { id: "Heat (Kemarahan & Gairah)", en: "Heat (Anger & Passion)", zh: "炽热（愤怒与激情）" },
-                subs: {
-                    id: [
-                        { emoji: "💢", name: "Anger", reflection: "Anger adalah reaksi panas dan defensif terhadap hambatan atau perlakuan tidak adil, berfungsi sebagai alarm instingtif melindungi batasan diri.", advice: "Tarik napas dan kenali pesan di balik kemarahanmu.", seeAlso: "RESENTMENT, RAGE, INDIGNATION" },
-                        { emoji: "😡", name: "Rage", reflection: "Rage adalah amuk hebat yang meruntuhkan kendali akal sehat akibat luapan frustrasi atau kemarahan tertahan.", advice: "Jauhkan diri dari pemicu dan beri waktu diri mendingin.", seeAlso: "FURY, WRATH, ANGER" },
-                        { emoji: "⚡", name: "Fury", reflection: "Fury adalah kemurkaan membara yang sangat ganas dan lepas kendali, menyapu bersih kesabaran dan pertimbangan rasional.", advice: "Hentikan tindakan reaktif, jangan ambil keputusan saat ini.", seeAlso: "RAGE, WRATH, ANGER" },
-                        { emoji: "⚖️", name: "Indignation", reflection: "Indignation adalah kemarahan bersumber dari prinsip moral yang dilanggar; protes keras atas ketidakadilan atau penindasan.", advice: "Salurkan kemarahan moral ini menjadi advokasi yang konstruktif.", seeAlso: "ANGER, RESENTMENT, DISGUST" },
-                        { emoji: "😤", name: "Exasperation", reflection: "Exasperation adalah jengkel kronis yang menguras tenaga karena menghadapi hal kecil berulang atau orang keras kepala.", advice: "Ambil jeda istirahat singkat dari situasi yang menjengkelkan.", seeAlso: "TENSION, ANGER, FRUSTRATION" },
-                        { emoji: "⚔️", name: "Wrath", reflection: "Wrath adalah kemurkaan berskala besar yang menuntut pembalasan atau hukuman setimpal atas pelanggaran prinsip moral fatal.", advice: "Cari jalan keadilan yang bijak alih-alih destruktif.", seeAlso: "FURY, RAGE, INDIGNATION" }
-                    ],
-                    en: [
-                        { emoji: "💢", name: "Anger", reflection: "Anger is a hot defensive reaction to obstacles or unfair treatment, functioning as an instinctual alarm protecting boundaries.", advice: "Breathe and recognize the message behind your anger.", seeAlso: "RESENTMENT, RAGE, INDIGNATION" },
-                        { emoji: "😡", name: "Rage", reflection: "Rage is intense fury breaking common sense control due to overflowing frustration.", advice: "Step away from triggers and cool down.", seeAlso: "FURY, WRATH, ANGER" },
-                        { emoji: "⚡", name: "Fury", reflection: "Fury is blazing fierce rage out of control, sweeping away patience and rational judgment.", advice: "Stop reactive actions; make no decisions now.", seeAlso: "RAGE, WRATH, ANGER" },
-                        { emoji: "⚖️", name: "Indignation", reflection: "Indignation is anger originating from violated moral principles; fierce protest against injustice.", advice: "Channel this moral anger into constructive advocacy.", seeAlso: "ANGER, RESENTMENT, DISGUST" },
-                        { emoji: "😤", name: "Exasperation", reflection: "Exasperation is chronic annoyance draining energy from facing repetitive petty things.", advice: "Take a short break from annoying situations.", seeAlso: "TENSION, ANGER, FRUSTRATION" },
-                        { emoji: "⚔️", name: "Wrath", reflection: "Wrath is large-scale fury demanding retribution or equal punishment for fatal moral violations.", advice: "Seek wise justice rather than destruction.", seeAlso: "FURY, RAGE, INDIGNATION" }
-                    ],
-                    zh: [
-                        { emoji: "💢", name: "愤怒 (Anger)", reflection: "愤怒是对阻碍或不公对待的热烈防御性反应，作为保护自我边界的本能警报。", advice: "深呼吸，识别愤怒背后的信息。", seeAlso: "RESENTMENT, RAGE, INDIGNATION" },
-                        { emoji: "😡", name: "狂怒 (Rage)", reflection: "狂怒是由于挫败感溢出或压抑的愤怒达到沸点，从而摧毁理智控制的猛烈发作。", advice: "远离触发源，给自己时间冷静。", seeAlso: "FURY, WRATH, ANGER" },
-                        { emoji: "⚡", name: "暴怒 (Fury)", reflection: "暴怒是炽热而凶猛、失控的怒火，横扫一切耐心和理性考量。", advice: "停止冲动行为，此时不要做任何决定。", seeAlso: "RAGE, WRATH, ANGER" },
-                        { emoji: "⚖️", name: "义愤 (Indignation)", reflection: "义愤源于道德原则被践踏的愤怒；对不公、歧视或压迫的强烈抗议。", advice: "将这种道德愤怒转化为建设性的倡导。", seeAlso: "ANGER, RESENTMENT, DISGUST" },
-                        { emoji: "😤", name: "恼怒 (Exasperation)", reflection: "恼怒是因不断面对反复琐事或固执之人而耗尽精力的慢性烦躁。", advice: "从烦人的情境中短暂抽身休息。", seeAlso: "TENSION, ANGER, FRUSTRATION" },
-                        { emoji: "⚔️", name: "天谴/怒火 (Wrath)", reflection: "怒火是要求对严重违反道德或公正的行为进行报复或严惩的大规模盛怒。", advice: "寻求明智的公道，而非破坏性的报复。", seeAlso: "FURY, RAGE, INDIGNATION" }
-                    ]
-                }
-            },
-            heartache: {
-                icon: "🌧️",
-                color: "#3b82f6",
-                title: { id: "Heartache (Kesedihan & Sakit Hati)", en: "Heartache (Sorrow & Pain)", zh: "心碎（悲伤与痛苦）" },
-                subs: {
-                    id: [
-                        { emoji: "🌧️", name: "Sadness", reflection: "Sadness adalah reaksi pasif berupa surutnya energi dan beratnya dada akibat kehilangan atau kekecewaan, jeda alami memproses luka.", advice: "Izinkan dirimu menangis dan memproses emosi.", seeAlso: "GRIEF, MELANCHOLY, SORROW" },
-                        { emoji: "🥀", name: "Sorrow", reflection: "Sorrow adalah kepedihan berat yang meresap perlahan ke dalam hari-hari, membawa sikap pasrah hening menghadapi kepahitan hidup.", advice: "Jalani hari secara perlahan, berbelas kasihlah pada diri sendiri.", seeAlso: "GRIEF, SADNESS, WOE" },
-                        { emoji: "🖤", name: "Woe", reflection: "Woe adalah kesengsaraan berlapis-lapis; perasaan mendalam bahwa nasib sedang bersekutu menimpakan penderitaan bertubi-tubi.", advice: "Ingatlah badai pasti berlalu, carilah dukungan orang terdekat.", seeAlso: "DESPAIR, SORROW, GRIEF" },
-                        { emoji: "🌑", name: "Despair", reflection: "Despair adalah keputusasaan mutlak saat seluruh cahaya harapan padam dan merasa tidak ada jalan keluar dari keterpurukan.", advice: "Hubungi profesional atau sahabat terdekat, kamu tidak sendirian.", seeAlso: "HEARTBREAK, WOE, APATHY" }
-                    ],
-                    en: [
-                        { emoji: "🌧️", name: "Sadness", reflection: "Sadness is a passive reaction of dropping energy and chest heaviness due to loss or disappointment, a natural pause.", advice: "Allow yourself to cry and process the wound.", seeAlso: "GRIEF, MELANCHOLY, SORROW" },
-                        { emoji: "🥀", name: "Sorrow", reflection: "Sorrow is heavy pain slowly seeping into days, bringing silent surrender to life's unchangeable bitterness.", advice: "Take life slowly and be compassionate to yourself.", seeAlso: "GRIEF, SADNESS, WOE" },
-                        { emoji: "🖤", name: "Woe", reflection: "Woe is multi-layered misery; the deep feeling that fate is conspiring to pile on suffering.", advice: "Remember storms pass; seek support from loved ones.", seeAlso: "DESPAIR, SORROW, GRIEF" },
-                        { emoji: "🌑", name: "Despair", reflection: "Despair is absolute hopelessness when all hope light goes out and feeling no way out.", advice: "Reach out to professionals or loved ones; you're not alone.", seeAlso: "HEARTBREAK, WOE, APATHY" }
-                    ],
-                    zh: [
-                        { emoji: "🌧️", name: "悲伤 (Sadness)", reflection: "悲伤是由失去或失望引起的能量消退和胸口沉重的消极反应，是处理伤痛的自然停顿。", advice: "允许自己哭泣并处理情绪。", seeAlso: "GRIEF, MELANCHOLY, SORROW" },
-                        { emoji: "🥀", name: "哀伤 (Sorrow)", reflection: "哀伤是沉重的痛苦慢慢渗入日常，对无法改变的生活苦涩带着无言的顺从。", advice: "慢慢过日子，对自己多一些慈悲。", seeAlso: "GRIEF, SADNESS, WOE" },
-                        { emoji: "🖤", name: "苦难 (Woe)", reflection: "苦难是多层面的悲惨；深感命运在合谋降下连串苦难的绝望感。", advice: "记住暴风雨总会过去，向挚爱寻求支持。", seeAlso: "DESPAIR, SORROW, GRIEF" },
-                        { emoji: "🌑", name: "绝望 (Despair)", reflection: "绝望是当所有希望之光熄灭、觉得深陷泥潭再无出路的绝对无望感。", advice: "向专业人士或亲友寻求帮助，你并不孤单。", seeAlso: "HEARTBREAK, WOE, APATHY" }
-                    ]
-                }
-            },
-            angst: {
-                icon: "🌪️",
-                color: "#7c3aed",
-                title: { id: "Angst (Kecemasan & Ketakutan)", en: "Angst (Anxiety & Fear)", zh: "焦虑（恐慌与惊恐）" },
-                subs: {
-                    id: [
-                        { emoji: "🏃", name: "Fear", reflection: "Fear adalah respons instingtif bertahan hidup untuk lari atau melawan saat menghadapi ancaman nyata di hadapan mata.", advice: "Evaluasi ancaman secara objektif dan ambil tindakan pengamanan.", seeAlso: "PANIC, DREAD, ANXIETY" },
-                        { emoji: "🌀", name: "Anxiety", reflection: "Anxiety adalah kecemasan mengambang tentang bahaya masa depan yang belum tentu terjadi, membuat pikiran berputar tanpa henti.", advice: "Gunakan teknik grounding 5-4-3-2-1 untuk kembali ke saat ini.", seeAlso: "TENSION, APPREHENSION, DREAD" },
-                        { emoji: "🥶", name: "Dread", reflection: "Dread adalah rasa ngeri melumpuhkan saat menanti datangnya malapetaka atau kejadian buruk di ambang pintu.", advice: "Hadapi ketidakpastian dengan langkah kecil yang terukur.", seeAlso: "PANIC, FEAR, ANXIETY" },
-                        { emoji: "🚨", name: "Panic", reflection: "Panic adalah ketakutan mendadak yang melumpuhkan logika, memicu lonjakan ekstrem dan sesak napas.", advice: "Fokus pada pernapasan lambat: tarik 4 detik, tahan 4 detik, buang 4 detik.", seeAlso: "FEAR, DREAD, TENSION" },
-                        { emoji: "🎭", name: "Apprehension", reflection: "Apprehension adalah rasa waswas dan ragu membayangi langkah awal menghadapi situasi sosial baru atau keputusan besar.", advice: "Persiapkan diri sebaik mungkin untuk membangun rasa percaya diri.", seeAlso: "ANTICIPATION, ANXIETY, TENSION" },
-                        { emoji: "🧶", name: "Tension", reflection: "Tension adalah kekakuan mental dan fisik bak karet ditarik batas maksimal, lahir dari tekanan situasi atau tenggat waktu.", advice: "Lakukan peregangan fisik dan istirahat sejenak.", seeAlso: "EXASPERATION, ANXIETY, APPREHENSION" },
-                        { emoji: "🕷️", name: "Phobia", reflection: "Phobia adalah ketakutan irasional spesifik dan intens terhadap objek atau situasi tertentu yang melampaui bahaya objektif.", advice: "Pertimbangkan terapi perilaku kognitif (CBT) jika mengganggu.", seeAlso: "FEAR, PANIC, DREAD" }
-                    ],
-                    en: [
-                        { emoji: "🏃", name: "Fear", reflection: "Fear is an instinctual survival response to fight or flight when facing real threats right before our eyes.", advice: "Evaluate threats objectively and take protective action.", seeAlso: "PANIC, DREAD, ANXIETY" },
-                        { emoji: "🌀", name: "Anxiety", reflection: "Anxiety is floating worry about future danger that may not happen, making the mind spin endlessly.", advice: "Use 5-4-3-2-1 grounding technique to return to the present.", seeAlso: "TENSION, APPREHENSION, DREAD" },
-                        { emoji: "🥶", name: "Dread", reflection: "Dread is paralyzing horror waiting for impending doom or bad events at the doorstep.", advice: "Face uncertainty with small measured steps.", seeAlso: "PANIC, FEAR, ANXIETY" },
-                        { emoji: "🚨", name: "Panic", reflection: "Panic is sudden fear paralyzing rational logic, triggering extreme surges and shortness of breath.", advice: "Focus on slow breathing: inhale 4s, hold 4s, exhale 4s.", seeAlso: "FEAR, DREAD, TENSION" },
-                        { emoji: "🎭", name: "Apprehension", reflection: "Apprehension is uneasiness shadowing early steps facing new social situations or big decisions.", advice: "Prepare thoroughly to build confidence.", seeAlso: "ANTICIPATION, ANXIETY, TENSION" },
-                        { emoji: "🧶", name: "Tension", reflection: "Tension is mental and physical stiffness like a stretched rubber band born from pressure or deadlines.", advice: "Do physical stretches and take a short break.", seeAlso: "EXASPERATION, ANXIETY, APPREHENSION" },
-                        { emoji: "🕷️", name: "Phobia", reflection: "Phobia is specific intense irrational fear toward certain objects or situations exceeding objective danger.", advice: "Consider cognitive behavioral therapy (CBT) if disrupting.", seeAlso: "FEAR, PANIC, DREAD" }
-                    ],
-                    zh: [
-                        { emoji: "🏃", name: "恐惧 (Fear)", reflection: "恐惧是面对眼前真实威胁时，逃跑或战斗的本能生存反应。", advice: "客观评估威胁并采取防护措施。", seeAlso: "PANIC, DREAD, ANXIETY" },
-                        { emoji: "🌀", name: "焦虑 (Anxiety)", reflection: "焦虑是对未来未必发生的危险的悬浮担忧，让大脑无休止地旋转。", advice: "使用5-4-3-2-1接地技术回到当下。", seeAlso: "TENSION, APPREHENSION, DREAD" },
-                        { emoji: "🥶", name: "敬畏/厄运感 (Dread)", reflection: "厄运感是等待灾难或坏事临头时的麻痹恐惧感。", advice: "用有度的小步骤面对不确定性。", seeAlso: "PANIC, FEAR, ANXIETY" },
-                        { emoji: "🚨", name: "恐慌 (Panic)", reflection: "恐慌是瘫痪理性逻辑的突发恐惧，引发极端激增和呼吸急促。", advice: "专注于缓慢呼吸：吸气4秒，屏气4秒，呼气4秒。", seeAlso: "FEAR, DREAD, TENSION" },
-                        { emoji: "🎭", name: "忧虑 (Apprehension)", reflection: "忧虑是面对新社交情况或重大决定时笼罩在初期的提心吊胆与犹豫。", advice: "做好充分准备以建立信心。", seeAlso: "ANTICIPATION, ANXIETY, TENSION" },
-                        { emoji: "🧶", name: "紧张 (Tension)", reflection: "紧张是源于压力或截止日期的精神与肉体僵硬，犹如被拉到极限的橡皮筋。", advice: "做身体拉伸并休息片刻。", seeAlso: "EXASPERATION, ANXIETY, APPREHENSION" },
-                        { emoji: "🕷️", name: "恐惧症 (Phobia)", reflection: "恐惧症是对特定对象或情况的特定强烈非理性恐惧，远远超过客观危险。", advice: "如果干扰生活，考虑认知行为疗法（CBT）。", seeAlso: "FEAR, PANIC, DREAD" }
-                    ]
-                }
-            },
-            loathing: {
-                icon: "🤢",
-                color: "#65a30d",
-                title: { id: "Loathing (Kebencian & Penolakan)", en: "Loathing (Disgust & Aversion)", zh: "厌恶（憎恨与排斥）" },
-                subs: {
-                    id: [
-                        { emoji: "🤢", name: "Disgust", reflection: "Disgust adalah rasa jijik instingtif—baik fisik terhadap sesuatu yang busuk maupun moral terhadap perilaku keji—membuat kita menjauh.", advice: "Jauhkan diri dari hal-hal yang mencemari prinsip atau kesehatanmu.", seeAlso: "REVULSION, AVERSION, CONTEMPT" },
-                        { emoji: "🐍", name: "Loathing", reflection: "Loathing adalah kebencian pekat yang mendarah daging dan konsisten terhadap sesuatu yang dianggap merusak atau menciderai nilai dasar.", advice: "Jangan biarkan kebencian ini meracuni ketenangan batinmu secara permanen.", seeAlso: "ABHORRENCE, REVULSION, DISGUST" },
-                        { emoji: "🤮", name: "Revulsion", reflection: "Revulsion adalah reaksi penolakan ekstrem disertai rasa mual luar biasa saat berhadapan dengan hal di luar batas toleransi.", advice: "Beri waktu tubuh dan pikiran pulih dari keterkejutan sensorik.", seeAlso: "DISGUST, LOATHING, AVERSION" },
-                        { emoji: "😒", name: "Contempt", reflection: "Contempt adalah rasa jijik moral yang membuat seseorang memandang rendah pihak lain, menganggap mereka tidak memiliki nilai atau kehormatan.", advice: "Latih empati dan cobalah melihat perspektif dari sisi lain.", seeAlso: "SUPERIORITY, BITTERNESS, LOATHING" },
-                        { emoji: "🚫", name: "Aversion", reflection: "Aversion adalah keengganan kuat untuk menyentuh, mendekati, atau berurusan dengan hal yang bertentangan dengan prinsip atau selera.", advice: "Tetapkan batasan yang sehat tanpa harus memelihara amarah.", seeAlso: "DISGUST, REVULSION, ABHORRENCE" },
-                        { emoji: "⚡", name: "Abhorrence", reflection: "Abhorrence adalah penolakan mutlak dan kemarahan moral terdalam terhadap hal-hal yang dianggap sebagai kekejian absolut.", advice: "Fokuskan energi pada penegakan nilai-nilai kemanusiaan yang positif.", seeAlso: "LOATHING, REVULSION, INDIGNATION" }
-                    ],
-                    en: [
-                        { emoji: "🤢", name: "Disgust", reflection: "Disgust is instinctual disgust—physical towards rotten things or moral towards vile behavior—making us turn away.", advice: "Stay away from things polluting your principles or health.", seeAlso: "REVULSION, AVERSION, CONTEMPT" },
-                        { emoji: "🐍", name: "Loathing", reflection: "Loathing is deep-rooted concentrated hatred consistently held against something destroying core values.", advice: "Do not let this hatred poison your inner peace permanently.", seeAlso: "ABHORRENCE, REVULSION, DISGUST" },
-                        { emoji: "🤮", name: "Revulsion", reflection: "Revulsion is extreme rejection accompanied by intense nausea when facing things beyond tolerance limits.", advice: "Give body and mind time to recover from sensory shock.", seeAlso: "DISGUST, LOATHING, AVERSION" },
-                        { emoji: "😒", name: "Contempt", reflection: "Contempt is moral disgust making one look down on others, considering them lacking worth or honor.", advice: "Practice empathy and try seeing other perspectives.", seeAlso: "SUPERIORITY, BITTERNESS, LOATHING" },
-                        { emoji: "🚫", name: "Aversion", reflection: "Aversion is strong reluctance to touch, approach, or deal with things contradicting principles or tastes.", advice: "Set healthy boundaries without nurturing anger.", seeAlso: "DISGUST, REVULSION, ABHORRENCE" },
-                        { emoji: "⚡", name: "Abhorrence", reflection: "Abhorrence is absolute rejection and deepest moral anger against things deemed absolute atrocities.", advice: "Focus energy on upholding positive human values.", seeAlso: "LOATHING, REVULSION, INDIGNATION" }
-                    ],
-                    zh: [
-                        { emoji: "🤢", name: "厌恶 (Disgust)", reflection: "厌恶是一种本能的恶心——对腐烂事物的生理厌恶或对卑劣行为的道德厌恶——让我们转开视线。", advice: "远离污染你原则或健康的事物。", seeAlso: "REVULSION, AVERSION, CONTEMPT" },
-                        { emoji: "🐍", name: "憎恨 (Loathing)", reflection: "憎恨是根深蒂固、持续存在的浓烈恨意，针对被认为破坏或伤害核心价值的事物。", advice: "不要让这种恨意永远毒害你的内心平静。", seeAlso: "ABHORRENCE, REVULSION, DISGUST" },
-                        { emoji: "🤮", name: "极度反感 (Revulsion)", reflection: "极度反感是面对超出容忍极限的事物时伴随强烈恶心的极端排斥反应。", advice: "给身心时间从感官冲击中恢复。", seeAlso: "DISGUST, LOATHING, AVERSION" },
-                        { emoji: "😒", name: "蔑视 (Contempt)", reflection: "蔑视是一种道德厌恶，让人看不起他人，认为他们毫无价值或尊严。", advice: "练习同理心，尝试从其他角度看待问题。", seeAlso: "SUPERIORITY, BITTERNESS, LOATHING" },
-                        { emoji: "🚫", name: "排斥 (Aversion)", reflection: "排斥是不愿接触、靠近或处理违背原则、品味的事物的强烈不情愿。", advice: "设定健康的边界，而不必滋养愤怒。", seeAlso: "DISGUST, REVULSION, ABHORRENCE" },
-                        { emoji: "⚡", name: "痛恶 (Abhorrence)", reflection: "痛恶是对被视为绝对暴行的事物的绝对拒绝与最深层的道德愤怒。", advice: "将精力集中在维护积极的人类价值上。", seeAlso: "LOATHING, REVULSION, INDIGNATION" }
-                    ]
-                }
-            },
-            bitterness: {
-                icon: "🍋",
-                color: "#b45309",
-                title: { id: "Bitterness (Kepahitan & Kekecewaan)", en: "Bitterness (Resentment & Regret)", zh: "苦涩（怨恨与遗憾）" },
-                subs: {
-                    id: [
-                        { emoji: "🍋", name: "Bitterness", reflection: "Bitterness adalah rasa getir di hati karena merasa takdir atau orang lain memperlakukan tidak adil, meninggalkan luka enggan sembuh.", advice: "Maafkan masa lalu demi kebebasan jiwamu sendiri.", seeAlso: "RESENTMENT, GRUDGE, CYNICISM" },
-                        { emoji: "👀", name: "Envy", reflection: "Envy adalah sakit hati menusuk saat melihat kelebihan atau pencapaian orang lain, disertai keinginan tersembunyi agar mereka kehilangan.", advice: "Jadikan inspirasi alih-alih beban emosional.", seeAlso: "JEALOUSY, BITTERNESS, SCHADENFREUDE" },
-                        { emoji: "🛡️", name: "Jealousy", reflection: "Jealousy adalah ketakutan paranoid dan kemarahan terselubung akan kehilangan orang atau posisi berharga yang terancam direbut.", advice: "Komunikasikan ketakutanmu secara terbuka dan bangun kepercayaan diri.", seeAlso: "ENVY, RESENTMENT, FEAR" },
-                        { emoji: "💔", name: "Disappointment", reflection: "Disappointment adalah kekecewaan getir saat realitas jatuh jauh di bawah ekspektasi indah yang telanjur dibangun di kepala.", advice: "Sesuaikan ekspektasi dan terima realita dengan bijak.", seeAlso: "REGRET, BITTERNESS, SADNESS" },
-                        { emoji: "🌫️", name: "Cynicism", reflection: "Cynicism adalah hilangnya kepercayaan mutlak pada niat baik manusia; memandang dunia dengan kecurigaan penuh motif egois.", advice: "Buka hati untuk melihat ketulusan kecil yang masih ada di dunia.", seeAlso: "BITTERNESS, APATHY, DESPAIR" },
-                        { emoji: "🪨", name: "Grudge", reflection: "Grudge adalah dendam kesumat; dengan sengaja merawat rasa sakit hati masa lalu bak harta karun, menolak memaafkan.", advice: "Lepaskan beban dendam ini karena ia hanya menyiksa dirimu.", seeAlso: "RESENTMENT, BITTERNESS, WRATH" }
-                    ],
-                    en: [
-                        { emoji: "🍋", name: "Bitterness", reflection: "Bitterness is bitterness in the heart feeling destiny or others treated us unfairly, leaving a reluctant wound.", advice: "Forgive the past for the sake of your own soul's freedom.", seeAlso: "RESENTMENT, GRUDGE, CYNICISM" },
-                        { emoji: "👀", name: "Envy", reflection: "Envy is piercing hurt seeing others' achievements, with a hidden wish that they lose them.", advice: "Turn it into inspiration rather than emotional burden.", seeAlso: "JEALOUSY, BITTERNESS, SCHADENFREUDE" },
-                        { emoji: "🛡️", name: "Jealousy", reflection: "Jealousy is paranoid fear and veiled anger of losing precious people or positions threatened by a third party.", advice: "Communicate fears openly and build self-confidence.", seeAlso: "ENVY, RESENTMENT, FEAR" },
-                        { emoji: "💔", name: "Disappointment", reflection: "Disappointment is bitter letdown when reality falls far below beautiful expectations built in mind.", advice: "Adjust expectations and accept reality wisely.", seeAlso: "REGRET, BITTERNESS, SADNESS" },
-                        { emoji: "🌫️", name: "Cynicism", reflection: "Cynicism is loss of absolute trust in human goodwill; viewing the world with suspicion of selfish motives.", advice: "Open your heart to small sincere acts still existing.", seeAlso: "BITTERNESS, APATHY, DESPAIR" },
-                        { emoji: "🪨", name: "Grudge", reflection: "Grudge is lingering resentment; purposely nursing past pain like treasure, refusing to forgive.", advice: "Release this burden as it only tortures you.", seeAlso: "RESENTMENT, BITTERNESS, WRATH" }
-                    ],
-                    zh: [
-                        { emoji: "🍋", name: "苦涩 (Bitterness)", reflection: "苦涩是内心感到命运或他人对待不公而留下的苦味，留下不愿癒合的伤口。", advice: "为了你灵魂的自由，原谅过去。", seeAlso: "RESENTMENT, GRUDGE, CYNICISM" },
-                        { emoji: "👀", name: "嫉妒 (Envy)", reflection: "嫉妒是看到他人的优点或成就时刺痛的伤心，伴随着希望对方失去它们的隐秘愿望。", advice: "将其转化为灵感，而非情绪负担。", seeAlso: "JEALOUSY, BITTERNESS, SCHADENFREUDE" },
-                        { emoji: "🛡️", name: "戒心/妒忌 (Jealousy)", reflection: "妒忌是害怕珍贵的人或地位被第三者抢走的偏执恐惧与隐藏愤怒。", advice: "公开沟通你的恐惧并建立自信。", seeAlso: "ENVY, RESENTMENT, FEAR" },
-                        { emoji: "💔", name: "失望 (Disappointment)", reflection: "失望是当现实远低于脑海中建立的美好期望时感到的苦涩失落。", advice: "调整期望，明智地接受现实。", seeAlso: "REGRET, BITTERNESS, SADNESS" },
-                        { emoji: "🌫️", name: "愤世嫉俗 (Cynicism)", reflection: "愤世嫉俗是对人类善良丧失绝对信任；带着自私动机的怀疑审视世界。", advice: "敞开心扉去看看世上依然存在的微小真诚。", seeAlso: "BITTERNESS, APATHY, DESPAIR" },
-                        { emoji: "🪨", name: "积怨 (Grudge)", reflection: "积怨是记恨；刻意像宝贝一样呵护过去的痛苦，拒绝原谅。", advice: "卸下这个包袱，因为它只会折磨你自己。", seeAlso: "RESENTMENT, BITTERNESS, WRATH" }
-                    ]
-                }
-            },
-            emptiness: {
-                icon: "🕳️",
-                color: "#64748b",
-                title: { id: "Emptiness (Kekosongan & Keterasingan)", en: "Emptiness (Void & Alienation)", zh: "空虚（孤独与冷漠）" },
-                subs: {
-                    id: [
-                        { emoji: "👥", name: "Loneliness", reflection: "Loneliness adalah rasa sakit psikologis akibat terisolasi dari koneksi sosial bermakna, terasa menyesakkan meski di keramaian.", advice: "Hubungi seorang teman untuk mengobrol ringan hari ini.", seeAlso: "ALIENATION, EMPTINESS, MELANCHOLY" },
-                        { emoji: "🧊", name: "Apathy", reflection: "Apathy adalah mati rasa total mandiri; hilangnya energi dan kepedulian merasa marah atau antusias terhadap hal dicintai.", advice: "Lakukan aktivitas fisik kecil secara perlahan untuk menyalakan kembali percikan.", seeAlso: "NUMBNESS, BOREDOM, EMPTINESS" },
-                        { emoji: "⏳", name: "Boredom", reflection: "Boredom adalah kegelisahan tumpul ketiadaan rangsangan mental atau aktivitas menarik memantik rasa ingin tahu.", advice: "Coba pelajari hobi baru atau baca buku yang menarik.", seeAlso: "APATHY, REVERIE, TENSION" },
-                        { emoji: "🛸", name: "Alienation", reflection: "Alienation adalah perasaan terasing di lingkungan sendiri, merasa nilai dan keberadaan tidak diterima atau tidak punya rumah.", advice: "Cari komunitas yang memiliki frekuensi dan nilai yang sejiwa.", seeAlso: "LONELINESS, EMPTINESS, APATHY" },
-                        { emoji: "🧱", name: "Numbness", reflection: "Numbness adalah mati rasa sementara mekanisme pertahanan tubuh saat beban trauma atau stres melampaui batas.", advice: "Terimalah kondisi mati rasa ini sebagai istirahat sementara sistem sarafmu.", seeAlso: "APATHY, DESPAIR, EMPTINESS" }
-                    ],
-                    en: [
-                        { emoji: "👥", name: "Loneliness", reflection: "Loneliness is psychological pain from isolation of meaningful social connections, stifling even in a crowd.", advice: "Reach out to a friend for a casual chat today.", seeAlso: "ALIENATION, EMPTINESS, MELANCHOLY" },
-                        { emoji: "🧊", name: "Apathy", reflection: "Apathy is total self-numbness; loss of energy and care to feel angry or enthusiastic about loved things.", advice: "Do small physical activities slowly to reignite a spark.", seeAlso: "NUMBNESS, BOREDOM, EMPTINESS" },
-                        { emoji: "⏳", name: "Boredom", reflection: "Boredom is dull restlessness from lack of mental stimulation or interesting activities sparking curiosity.", advice: "Try learning a new hobby or reading an engaging book.", seeAlso: "APATHY, REVERIE, TENSION" },
-                        { emoji: "🛸", name: "Alienation", reflection: "Alienation is feeling alienated in your own environment, feeling values and existence are unaccepted.", advice: "Look for communities sharing your frequency and soul values.", seeAlso: "LONELINESS, EMPTINESS, APATHY" },
-                        { emoji: "🧱", name: "Numbness", reflection: "Numbness is temporary defense mechanism numbness when trauma or stress loads exceed limits.", advice: "Accept this numbness as temporary rest for your nervous system.", seeAlso: "APATHY, DESPAIR, EMPTINESS" }
-                    ],
-                    zh: [
-                        { emoji: "👥", name: "孤独 (Loneliness)", reflection: "孤独是因与有意义的社交联系隔绝而产生的心理痛苦，即使在人群中也令人窒息。", advice: "今天联系一位朋友进行轻松的聊天。", seeAlso: "ALIENATION, EMPTINESS, MELANCHOLY" },
-                        { emoji: "🧊", name: "冷漠 (Apathy)", reflection: "冷漠是全然的麻木；失去对曾经热爱的事物感到愤怒或热情的精力和关心。", advice: "慢慢做一些微小的身体活动以重新点燃火花。", seeAlso: "NUMBNESS, BOREDOM, EMPTINESS" },
-                        { emoji: "⏳", name: "无聊 (Boredom)", reflection: "无聊是因缺乏激发好奇心的精神刺激或有趣活动而产生的沉闷烦躁感。", advice: "尝试学习一项新爱好或读一本引人入胜的书。", seeAlso: "APATHY, REVERIE, TENSION" },
-                        { emoji: "🛸", name: "疏离感 (Alienation)", reflection: "疏离感是在自己的环境中感到格格不入，觉得自身的价值观和存在不被接纳或没有归宿。", advice: "寻找频率和价值观契合的社群。", seeAlso: "LONELINESS, EMPTINESS, APATHY" },
-                        { emoji: "🧱", name: "麻木 (Numbness)", reflection: "麻木是当创伤或压力负荷超出极限时身体暂时的防御机制。", advice: "接受这种麻木感，把它当作神经系统的暂时休息。", seeAlso: "APATHY, DESPAIR, EMPTINESS" }
-                    ]
-                }
-            }
-        };
-
-        // --- Initialization ---
-        window.onload = () => {
-            const savedUser = localStorage.getItem("boxUser");
-            const isLoggedIn = localStorage.getItem("isLoggedIn");
-            if (savedUser && isLoggedIn === "true") {
-                currentUser = savedUser;
-                showApp();
-            }
-            updateLanguageUI();
-        };
-
-        // --- Utilities ---
-        function showToast(msg, type = "error") {
-            const toast = document.getElementById("toast");
-            toast.innerText = msg;
-            toast.className = `toast show ${type}`;
-            setTimeout(() => toast.classList.remove("show"), 3000);
-        }
-
-        function toggleTheme() {
-            const root = document.getElementById("htmlRoot");
-            const btn = document.getElementById("themeBtn");
-            if (currentTheme === 'light') {
-                currentTheme = 'dark'; root.setAttribute("data-theme", "dark"); btn.innerText = "☀️";
-            } else {
-                currentTheme = 'light'; root.removeAttribute("data-theme"); btn.innerText = "🌙";
-            }
-        }
-
-        function toggleLang() {
-            currentLang = currentLang === 'id' ? 'en' : (currentLang === 'en' ? 'zh' : 'id');
-            document.getElementById("langBtn").innerText = uiText[currentLang].langBtn;
-            updateLanguageUI();
-        }
-
-        function updateLanguageUI() {
-            const t = uiText[currentLang];
-            // General
-            document.getElementById("brandText").innerText = t.brand;
-            document.getElementById("lblUser").innerText = t.lblUser;
-            document.getElementById("lblPass").innerText = t.lblPass;
-            document.getElementById("txtHello").innerText = t.hello;
-            document.getElementById("btnLogout").innerText = t.logout;
-            document.getElementById("txtBack").innerText = t.btnBack;
-            document.getElementById("lblRefl").innerText = t.lblRefl;
-            document.getElementById("lblAdv").innerText = t.lblAdv;
-            document.getElementById("lblSeeAlso").innerText = t.lblSeeAlso;
-            document.getElementById("lblNavEmo").innerText = t.navEmo;
-            document.getElementById("lblNavLib").innerText = t.navLib;
-            document.getElementById("lblNavNote").innerText = t.navNote;
-            
-            // Library Text
-            document.getElementById("libTitle").innerText = t.libTitle;
-            document.getElementById("libSubtitle").innerText = t.libSub;
-
-            // Notes Text
-            document.getElementById("notesTitle").innerText = t.notesTitle;
-            document.getElementById("notesSubtitle").innerText = t.notesSub;
-            document.getElementById("createNoteTitle").innerText = t.createNoteTitle;
-            document.getElementById("noteInput").placeholder = t.noteHolder;
-            document.getElementById("btnCancelNote").innerText = t.btnCancel;
-            document.getElementById("btnSaveNote").innerText = t.btnSave;
-
-            // Curhat / Analysis Text
-            document.getElementById("curhatTitle").innerText = t.curhatTitle;
-            document.getElementById("curhatSub").innerText = t.curhatSub;
-            document.getElementById("curhatInput").placeholder = t.curhatPlaceholder;
-            document.getElementById("curhatBtn").innerText = t.curhatBtn;
-            
-            if (!document.getElementById("authSection").classList.contains("hidden")) setupAuthMode();
-            if (currentUser) {
-                renderCategories(); 
-                if(!document.getElementById("tabNotes").classList.contains("hidden")) renderNotes();
-                if(!document.getElementById("tabLibrary").classList.contains("hidden")) renderLibrary();
-            }
-        }
-
-        // --- Auth ---
-        function switchAuthMode() { isLogin = !isLogin; setupAuthMode(); }
-        function setupAuthMode() {
-            const t = uiText[currentLang];
-            if (isLogin) {
-                document.getElementById("authTitle").innerText = t.authLogTitle;
-                document.getElementById("authSubtitle").innerText = t.authLogSub;
-                document.getElementById("btnSubmit").innerText = t.btnLog;
-                document.getElementById("authSwitchText").innerHTML = `${t.switchReg} <span onclick="switchAuthMode()">${t.switchRegAct}</span>`;
-                if(localStorage.getItem("boxUser")) document.getElementById("username").value = localStorage.getItem("boxUser");
-            } else {
-                document.getElementById("authTitle").innerText = t.authRegTitle;
-                document.getElementById("authSubtitle").innerText = t.authRegSub;
-                document.getElementById("btnSubmit").innerText = t.btnReg;
-                document.getElementById("authSwitchText").innerHTML = `${t.switchLog} <span onclick="switchAuthMode()">${t.switchLogAct}</span>`;
-                document.getElementById("username").value = ""; document.getElementById("password").value = "";
-            }
-        }
-        function handleAuth() {
-            const user = document.getElementById("username").value.trim();
-            const pass = document.getElementById("password").value;
-            const t = uiText[currentLang];
-            if (!user || !pass) return showToast(t.toastErrEmpty, "error");
-
-            if (!isLogin) {
-                localStorage.setItem("boxUser", user); localStorage.setItem("boxPass", pass);
-                showToast(t.toastOkReg, "success");
-                setTimeout(() => { isLogin = true; setupAuthMode(); document.getElementById("password").value = ""; }, 1500);
-            } else {
-                if (user === localStorage.getItem("boxUser") && pass === localStorage.getItem("boxPass")) {
-                    localStorage.setItem("isLoggedIn", "true"); currentUser = user; showApp();
-                } else { showToast(t.toastErrWrong, "error"); }
-            }
-        }
-        function logout() {
-            localStorage.removeItem("isLoggedIn"); currentUser = "";
-            document.getElementById("tabEmotions").classList.add("hidden");
-            document.getElementById("tabLibrary").classList.add("hidden");
-            document.getElementById("tabNotes").classList.add("hidden");
-            document.getElementById("bottomNav").classList.remove("show");
-            document.getElementById("authSection").classList.remove("hidden");
-            isLogin = true; setupAuthMode();
-        }
-
-        // --- Core App Navigation ---
-        function showApp() {
-            document.getElementById("authSection").classList.add("hidden");
-            document.getElementById("userNameDisplay").innerText = currentUser;
-            document.getElementById("bottomNav").classList.add("show");
-            switchTab('emotions');
-        }
-
-        function switchTab(tabName) {
-            const tabEmo = document.getElementById("tabEmotions");
-            const tabLib = document.getElementById("tabLibrary");
-            const tabNote = document.getElementById("tabNotes");
-            const navEmo = document.getElementById("navEmo");
-            const navLib = document.getElementById("navLib");
-            const navNote = document.getElementById("navNote");
-            
-            document.getElementById("scrollArea").scrollTop = 0;
-
-            tabEmo.classList.add("hidden");
-            tabLib.classList.add("hidden");
-            tabNote.classList.add("hidden");
-            navEmo.classList.remove("active");
-            navLib.classList.remove("active");
-            navNote.classList.remove("active");
-
-            if (tabName === 'emotions') {
-                tabEmo.classList.remove("hidden");
-                navEmo.classList.add("active");
-                renderCategories();
-            } else if (tabName === 'library') {
-                tabLib.classList.remove("hidden");
-                navLib.classList.add("active");
-                renderLibrary();
-            } else {
-                tabNote.classList.remove("hidden");
-                navNote.classList.add("active");
-                hideCreateNote();
-                renderNotes();
-            }
-        }
-
-        // --- Emotions Logic ---
-        function renderCategories() {
-            currentEmotionView = 'home';
-            const t = uiText[currentLang];
-            document.getElementById("dashTitle").innerText = t.dashTitle;
-            document.getElementById("dashSubtitle").innerText = t.dashSub;
-            document.getElementById("detailViewWrapper").classList.add("hidden");
-            
-            const grid = document.getElementById("mainGrid");
-            grid.innerHTML = ""; grid.classList.remove("hidden");
-            document.getElementById("homeView").classList.remove("hidden");
-
-            let delay = 0;
-            for (const [key, data] of Object.entries(emotionDB)) {
-                const count = data.subs[currentLang].length;
-                let catName = currentLang === 'zh' ? data.title[currentLang] : data.title[currentLang].split(' (')[0];
-                grid.innerHTML += `
-                    <div class="card" style="animation-delay: ${delay}s; border-top: 3px solid ${data.color};" onclick="openCategory('${key}')">
-                        <div class="card-emoji" style="background:${data.color}22; color:${data.color};">${data.icon}</div>
-                        <div class="card-info"><div class="card-title">${catName}</div><div class="card-desc">${count} ${t.variations}</div></div>
-                    </div>`;
-                delay += 0.05;
-            }
-        }
-
-        function openCategory(catKey) {
-            activeCategory = catKey; currentEmotionView = 'subs';
-            const t = uiText[currentLang]; const data = emotionDB[catKey];
-            
-            document.getElementById("homeView").classList.add("hidden");
-            const wrapper = document.getElementById("detailViewWrapper");
-            wrapper.classList.remove("hidden");
-            
-            document.getElementById("reflectionDetail").classList.add("hidden");
-            
-            const grid = document.getElementById("subGrid");
-            grid.innerHTML = ""; grid.classList.remove("hidden");
-
-            data.subs[currentLang].forEach((item, idx) => {
-                grid.innerHTML += `
-                    <div class="card span-2" style="animation-delay: ${idx * 0.05}s; margin-bottom:12px; border-left: 4px solid ${data.color};" onclick="openDetail(${idx})">
-                        <div class="card-emoji" style="font-size:32px; background:${data.color}22; color:${data.color};">${item.emoji}</div>
-                        <div class="card-info"><div class="card-title" style="font-size:16px;">${item.name}</div><div class="card-desc">${t.clickRefl}</div></div>
-                    </div>`;
-            });
-            document.getElementById("scrollArea").scrollTop = 0;
-        }
-
-        function openDetail(subIdx) {
-            currentEmotionView = 'detail';
-            const data = emotionDB[activeCategory].subs[currentLang][subIdx];
-            const catColor = emotionDB[activeCategory].color;
-
-            const emojiEl = document.getElementById("resEmoji");
-            emojiEl.innerText = data.emoji;
-            emojiEl.style.background = catColor + "22";
-            emojiEl.style.color = catColor;
-
-            document.getElementById("resName").innerText = data.name;
-            document.getElementById("resReflection").innerText = data.reflection;
-            document.getElementById("resAdvice").innerText = data.advice;
-            document.getElementById("resSeeAlso").innerText = "See also: " + data.seeAlso;
-            document.getElementById("resSeeAlso").style.color = catColor;
-            document.getElementById("reflectionCardBox").style.borderColor = catColor;
-
-            document.getElementById("subGrid").classList.add("hidden");
-            document.getElementById("reflectionDetail").classList.remove("hidden");
-            document.getElementById("scrollArea").scrollTop = 0;
-        }
-
-        function goBackEmotions() {
-            if (currentEmotionView === 'detail') openCategory(activeCategory);
-            else if (currentEmotionView === 'subs') renderCategories();
-        }
-
-        // --- Curhat / AI Analysis Logic (connects to app.py Flask backend) ---
-        // Ganti IP/port ini kalau backend kamu jalan di alamat lain.
-        const BACKEND_URL = "http://127.0.0.1:5000";
-
-        // Peta dari kategori yang dikembalikan app.py (huruf besar di depan)
-        // ke key emotionDB (huruf kecil semua). "Enjoyment" adalah default
-        // fallback dari backend kalau tidak ada kata kunci yang cocok.
-        const BACKEND_CATEGORY_MAP = {
-            Heat: "heat", Bliss: "bliss", Heartache: "heartache",
-            Zen: "zen", Possibility: "possibility", Ego: "ego", Enjoyment: "enjoyment"
-        };
-
-        async function analyzeCurhat() {
-            const t = uiText[currentLang];
-            const input = document.getElementById("curhatInput");
-            const text = input.value.trim();
-            const resultBox = document.getElementById("curhatResult");
-
-            if (!text) { showToast(t.curhatEmpty, "error"); return; }
-
-            const btn = document.getElementById("curhatBtn");
-            const originalLabel = btn.innerText;
-            btn.innerText = "..."; btn.disabled = true;
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/analyze`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ text })
-                });
-                if (!res.ok) throw new Error("Server error");
-                const data = await res.json();
-
-                const catKey = BACKEND_CATEGORY_MAP[data.detected_emotion] || "enjoyment";
-                const catData = emotionDB[catKey];
-                const catTitle = currentLang === 'zh' ? catData.title[currentLang] : catData.title[currentLang].split(' (')[0];
-
-                resultBox.classList.remove("hidden", "error");
-                resultBox.innerHTML = `
-                    <div><strong>${t.curhatResultLabel}</strong> ${catData.icon} ${catTitle}</div>
-                    <div style="opacity:0.9;">${escapeHTML(data.message)}</div>
-                    <button class="curhat-result-btn" onclick="openCategory('${catKey}')">${t.curhatSeeDetail}</button>
-                `;
-            } catch (err) {
-                resultBox.classList.remove("hidden");
-                resultBox.classList.add("error");
-                resultBox.innerHTML = `<div>${t.curhatOffline}</div>`;
-            } finally {
-                btn.innerText = originalLabel; btn.disabled = false;
-            }
-        }
-
-        // --- Library Logic ---
-        function renderLibrary() {
-            const container = document.getElementById("libraryContainer");
-            container.innerHTML = "";
-
-            for (const [catKey, catData] of Object.entries(emotionDB)) {
-                let catTitle = catData.title[currentLang];
-                let itemsHTML = "";
-
-                catData.subs[currentLang].forEach(item => {
-                    itemsHTML += `
-                        <div class="lib-item">
-                            <div class="lib-item-name">${item.emoji} ${item.name}</div>
-                            <div class="lib-item-desc">${item.reflection}</div>
-                            <div class="lib-item-see">See also: ${item.seeAlso}</div>
-                        </div>`;
-                });
-
-                container.innerHTML += `
-                    <div class="lib-category-card" style="border-left: 4px solid ${catData.color};">
-                        <div class="lib-cat-title" style="color:${catData.color};">${catData.icon} ${catTitle}</div>
-                        ${itemsHTML}
-                    </div>`;
-            }
-        }
-
-        // --- Notes Logic ---
-        function getNotesKey() { return "boxNotes_" + currentUser; }
-        
-        function getNotes() {
-            return JSON.parse(localStorage.getItem(getNotesKey())) || [];
-        }
-
-        function renderNotes() {
-            const notes = getNotes();
-            const container = document.getElementById("notesContainer");
-            container.innerHTML = "";
-            const t = uiText[currentLang];
-
-            if (notes.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📝</div>
-                        <div style="font-size:14px; font-weight:600;">${t.emptyNote}</div>
-                    </div>`;
-                return;
-            }
-
-            notes.sort((a, b) => b.id - a.id).forEach((note, idx) => {
-                container.innerHTML += `
-                    <div class="note-item" style="animation-delay: ${idx * 0.05}s">
-                        <div class="note-header">
-                            <div class="note-date">${note.date}</div>
-                            <button class="btn-delete" onclick="deleteNote(${note.id})" title="Delete">🗑️</button>
-                        </div>
-                        <div class="note-content">${escapeHTML(note.text)}</div>
-                    </div>`;
-            });
-        }
-
-        function showCreateNote() {
-            document.getElementById("notesListView").classList.add("hidden");
-            document.getElementById("noteCreateView").classList.remove("hidden");
-            document.getElementById("noteInput").value = "";
-            document.getElementById("noteInput").focus();
-        }
-
-        function hideCreateNote() {
-            document.getElementById("noteCreateView").classList.add("hidden");
-            document.getElementById("notesListView").classList.remove("hidden");
-        }
-
-        function saveNote() {
-            const text = document.getElementById("noteInput").value.trim();
-            if (!text) return;
-
-            const notes = getNotes();
-            const now = new Date();
-            const dateStr = now.toLocaleDateString(currentLang === 'id' ? 'id-ID' : (currentLang === 'zh' ? 'zh-CN' : 'en-US'), { 
-                weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-            });
-
-            const newNote = { id: Date.now(), text: text, date: dateStr };
-            notes.push(newNote);
-            localStorage.setItem(getNotesKey(), JSON.stringify(notes));
-
-            showToast(uiText[currentLang].toastOkNote, "success");
-            hideCreateNote();
-            renderNotes();
-        }
-
-        function deleteNote(id) {
-            let notes = getNotes();
-            notes = notes.filter(n => n.id !== id);
-            localStorage.setItem(getNotesKey(), JSON.stringify(notes));
-            showToast(uiText[currentLang].toastDelNote, "success");
-            renderNotes();
-        }
-
-        function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
-        }
-
-        // Header Shadow on Scroll
-        document.getElementById('scrollArea').addEventListener('scroll', function() {
-            const header = document.getElementById('headerBar');
-            if (this.scrollTop > 10) header.classList.add('active-border');
-            else header.classList.remove('active-border');
-        });
-    </script>
+    <script src="full-essays.js?v=1"></script>
+    <script src="emotions.js?v=16"></script>
+    <script src="app.js?v=16"></script>
 </body>
 </html>

@@ -1,0 +1,30 @@
+{
+  "id": "./",
+  "name": "Box of Emotions",
+  "short_name": "Emotions",
+  "description": "Recognize, reflect on, and record 68 emotions in three languages.",
+  "lang": "en",
+  "start_url": "./#emotions",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#f1f5f9",
+  "theme_color": "#6366f1",
+  "orientation": "any",
+  "categories": ["education", "lifestyle", "health"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
