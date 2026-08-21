@@ -1,19 +1,13 @@
 <!DOCTYPE html>
 <html lang="id" id="htmlRoot">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
-
-    <style>
-    html {
-        scroll-behavior: smooth;
-    }
-</style>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Box of Emotion</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        html { scroll-behavior: smooth; }
+
         /* === COLOR PALETTE & VARIABLES === */
         :root {
             --bg-app: #f1f5f9;
@@ -37,6 +31,21 @@
             --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.05);
             --shadow-lg: 0 20px 40px -10px rgba(0,0,0,0.08);
             --shadow-up: 0 -10px 25px -5px rgba(0,0,0,0.05);
+
+            /* === EMOTION CATEGORY COLORS ===
+               Each spectrum gets its own accent, echoing the way the physical
+               Box of Emotions gives every category its own colour pattern. */
+            --c-zen: #0891b2;
+            --c-bliss: #f59e0b;
+            --c-enjoyment: #ec4899;
+            --c-possibility: #10b981;
+            --c-ego: #a855f7;
+            --c-heat: #ef4444;
+            --c-heartache: #3b82f6;
+            --c-angst: #7c3aed;
+            --c-loathing: #65a30d;
+            --c-bitterness: #b45309;
+            --c-emptiness: #64748b;
         }
 
         [data-theme="dark"] {
@@ -62,7 +71,7 @@
         }
 
         /* === GLOBAL RESET === */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Lora', serif; -webkit-tap-highlight-color: transparent; }
         body {
             background-color: var(--bg-app); color: var(--text-main);
             min-height: 100vh; display: flex; justify-content: center; align-items: center;
@@ -165,6 +174,33 @@
         .card-info { display: flex; flex-direction: column; align-items: center; width: 100%; }
         .card-title { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
         .card-desc { font-size: 11px; color: var(--text-sub); font-weight: 500; }
+
+        /* === CURHAT / AI ANALYSIS CARD === */
+        .curhat-card {
+            background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%);
+            border-radius: 20px; padding: 20px; margin-bottom: 24px; color: #fff;
+            box-shadow: var(--shadow-md); animation: slideUpFade 0.5s forwards;
+        }
+        .curhat-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+        .curhat-sub { font-size: 12px; opacity: 0.9; margin-bottom: 12px; line-height: 1.4; }
+        .curhat-textarea {
+            width: 100%; border: none; border-radius: 14px; padding: 12px 14px;
+            font-size: 14px; color: var(--text-main); background: rgba(255,255,255,0.95);
+            resize: none; outline: none; font-family: inherit;
+        }
+        .curhat-card .btn-primary { background: #0f172a; box-shadow: none; }
+        .curhat-card .btn-primary:hover { background: #1e293b; }
+        .curhat-result {
+            margin-top: 14px; background: rgba(255,255,255,0.15); border-radius: 14px;
+            padding: 12px 14px; font-size: 13px; line-height: 1.5; display: flex;
+            flex-direction: column; gap: 8px; animation: zoomIn 0.3s forwards;
+        }
+        .curhat-result.error { background: rgba(239,68,68,0.25); }
+        .curhat-result-btn {
+            align-self: flex-start; background: #fff; color: var(--primary); border: none;
+            font-weight: 700; font-size: 12px; padding: 8px 14px; border-radius: 10px;
+            cursor: pointer; margin-top: 2px;
+        }
 
         /* Reflection Card */
         .reflection-card { background: var(--surface-solid); border: 2px solid var(--primary); border-radius: 24px; padding: 28px 20px; box-shadow: var(--shadow-md); margin-bottom: 24px; animation: zoomIn 0.4s forwards; }
@@ -319,6 +355,16 @@
                         </div>
                         <button class="btn-logout" id="btnLogout" onclick="logout()">Keluar</button>
                     </div>
+
+                    <!-- CURHAT / AI ANALYSIS CARD (terhubung ke backend Flask app.py) -->
+                    <div class="curhat-card" id="curhatCard">
+                        <div class="curhat-title" id="curhatTitle">✍️ Curhat Dulu, Yuk</div>
+                        <p class="curhat-sub" id="curhatSub">Tulis apa yang kamu rasakan, biar sistem coba menebak emosinya.</p>
+                        <textarea class="curhat-textarea" id="curhatInput" placeholder="Cth: aku lagi bete banget sama kerjaan..." rows="3"></textarea>
+                        <button class="btn-primary" id="curhatBtn" style="margin-top: 10px;" onclick="analyzeCurhat()">Analisa Perasaanku</button>
+                        <div class="curhat-result hidden" id="curhatResult"></div>
+                    </div>
+
                     <h1 class="page-title" id="dashTitle" style="font-size: 24px;">Bagaimana perasaanmu?</h1>
                     <p class="page-subtitle" id="dashSubtitle">Pilih spektrum emosi di bawah ini.</p>
                     <div class="emotions-grid" id="mainGrid"></div>
@@ -331,7 +377,7 @@
                     </div>
                     <div id="subGrid" class="emotions-grid list-view hidden"></div>
                     <div id="reflectionDetail" class="hidden">
-                        <div class="reflection-card">
+                        <div class="reflection-card" id="reflectionCardBox">
                             <div class="refl-header">
                                 <div class="refl-emoji" id="resEmoji">✨</div>
                                 <div class="refl-title" id="resName">Nama Emosi</div>
@@ -441,7 +487,12 @@
                 libTitle: "Pustaka Emosi 📚", libSub: "Kumpulan lengkap esai mendalam seluruh kategori spektrum emosi.",
                 notesTitle: "Catatan Saya 📝", notesSub: "Tuliskan pikiran dan perasaanmu di sini.",
                 emptyNote: "Belum ada catatan.", createNoteTitle: "Tulis Catatan ✍️",
-                noteHolder: "Tulis sesuatu...", btnCancel: "Batal", btnSave: "Simpan"
+                noteHolder: "Tulis sesuatu...", btnCancel: "Batal", btnSave: "Simpan",
+                curhatTitle: "✍️ Curhat Dulu, Yuk", curhatSub: "Tulis apa yang kamu rasakan, biar sistem coba menebak emosinya.",
+                curhatPlaceholder: "Cth: aku lagi bete banget sama kerjaan...", curhatBtn: "Analisa Perasaanku",
+                curhatEmpty: "Tulis dulu ceritanya ya!", curhatSeeDetail: "Lihat Detail Emosi Ini →",
+                curhatOffline: "Server analisis (app.py) belum jalan. Coba jalankan 'python app.py' di komputer kamu dulu ya.",
+                curhatResultLabel: "Hasil deteksi:"
             },
             en: {
                 brand: "Emotion Box", langBtn: "中文",
@@ -460,7 +511,12 @@
                 notesTitle: "My Notes 📝", notesSub: "Write down your thoughts and feelings here.",
                 libTitle: "Emotion Library 📚", libSub: "Comprehensive collection of deep essays across all emotion spectrums.",
                 emptyNote: "No notes yet.", createNoteTitle: "Write Note ✍️",
-                noteHolder: "Write something...", btnCancel: "Cancel", btnSave: "Save"
+                noteHolder: "Write something...", btnCancel: "Cancel", btnSave: "Save",
+                curhatTitle: "✍️ Tell Me What's Up", curhatSub: "Write what you're feeling and let the system guess the emotion.",
+                curhatPlaceholder: "e.g. I'm so annoyed at work right now...", curhatBtn: "Analyze My Feeling",
+                curhatEmpty: "Write something first!", curhatSeeDetail: "See This Emotion's Detail →",
+                curhatOffline: "The analysis server (app.py) isn't running. Try running 'python app.py' on your computer first.",
+                curhatResultLabel: "Detected result:"
             },
             zh: {
                 brand: "情绪魔方", langBtn: "ID",
@@ -479,12 +535,18 @@
                 libTitle: "情绪文库 📚", libSub: "收录了所有情绪光谱的深度散文与解析合集。",
                 notesTitle: "我的笔记 📝", notesSub: "在这里写下你的想法和感受。",
                 emptyNote: "暂无笔记。", createNoteTitle: "写笔记 ✍️",
-                noteHolder: "写点什么...", btnCancel: "取消", btnSave: "保存"
+                noteHolder: "写点什么...", btnCancel: "取消", btnSave: "保存",
+                curhatTitle: "✍️ 先说说心事吧", curhatSub: "写下你的感受，让系统猜猜你的情绪。",
+                curhatPlaceholder: "例如：我现在对工作感到很烦躁...", curhatBtn: "分析我的情绪",
+                curhatEmpty: "请先写点内容！", curhatSeeDetail: "查看此情绪详情 →",
+                curhatOffline: "分析服务器（app.py）尚未运行。请先在你的电脑上运行 'python app.py'。",
+                curhatResultLabel: "检测结果："
             }
         };
         const emotionDB = {
             zen: {
                 icon: "🧘",
+                color: "#0891b2",
                 title: { id: "Zen (Ketenangan & Kedamaian)", en: "Zen (Serenity & Peace)", zh: "禅意（宁静与平和）" },
                 subs: {
                     id: [
@@ -512,6 +574,7 @@
             },
             bliss: {
                 icon: "🌟",
+                color: "#f59e0b",
                 title: { id: "Bliss (Puncak Kebahagiaan)", en: "Bliss (Peak Happiness)", zh: "极乐（幸福巅峰）" },
                 subs: {
                     id: [
@@ -545,6 +608,7 @@
             },
             enjoyment: {
                 icon: "🎈",
+                color: "#ec4899",
                 title: { id: "Enjoyment (Kenikmatan & Kesenangan)", en: "Enjoyment (Pleasure & Fun)", zh: "愉悦（享受与乐趣）" },
                 subs: {
                     id: [
@@ -575,6 +639,7 @@
             },
             possibility: {
                 icon: "🌱",
+                color: "#10b981",
                 title: { id: "Possibility (Harapan & Peluang)", en: "Possibility (Hope & Opportunity)", zh: "可能性（希望与机遇）" },
                 subs: {
                     id: [
@@ -599,6 +664,7 @@
             },
             ego: {
                 icon: "👑",
+                color: "#a855f7",
                 title: { id: "Ego (Kebanggaan & Citra Diri)", en: "Ego (Pride & Self-Image)", zh: "自我（自豪与形象）" },
                 subs: {
                     id: [
@@ -626,6 +692,7 @@
             },
             heat: {
                 icon: "🔥",
+                color: "#ef4444",
                 title: { id: "Heat (Kemarahan & Gairah)", en: "Heat (Anger & Passion)", zh: "炽热（愤怒与激情）" },
                 subs: {
                     id: [
@@ -656,6 +723,7 @@
             },
             heartache: {
                 icon: "🌧️",
+                color: "#3b82f6",
                 title: { id: "Heartache (Kesedihan & Sakit Hati)", en: "Heartache (Sorrow & Pain)", zh: "心碎（悲伤与痛苦）" },
                 subs: {
                     id: [
@@ -680,6 +748,7 @@
             },
             angst: {
                 icon: "🌪️",
+                color: "#7c3aed",
                 title: { id: "Angst (Kecemasan & Ketakutan)", en: "Angst (Anxiety & Fear)", zh: "焦虑（恐慌与惊恐）" },
                 subs: {
                     id: [
@@ -713,6 +782,7 @@
             },
             loathing: {
                 icon: "🤢",
+                color: "#65a30d",
                 title: { id: "Loathing (Kebencian & Penolakan)", en: "Loathing (Disgust & Aversion)", zh: "厌恶（憎恨与排斥）" },
                 subs: {
                     id: [
@@ -743,6 +813,7 @@
             },
             bitterness: {
                 icon: "🍋",
+                color: "#b45309",
                 title: { id: "Bitterness (Kepahitan & Kekecewaan)", en: "Bitterness (Resentment & Regret)", zh: "苦涩（怨恨与遗憾）" },
                 subs: {
                     id: [
@@ -773,6 +844,7 @@
             },
             emptiness: {
                 icon: "🕳️",
+                color: "#64748b",
                 title: { id: "Emptiness (Kekosongan & Keterasingan)", en: "Emptiness (Void & Alienation)", zh: "空虚（孤独与冷漠）" },
                 subs: {
                     id: [
@@ -862,6 +934,12 @@
             document.getElementById("noteInput").placeholder = t.noteHolder;
             document.getElementById("btnCancelNote").innerText = t.btnCancel;
             document.getElementById("btnSaveNote").innerText = t.btnSave;
+
+            // Curhat / Analysis Text
+            document.getElementById("curhatTitle").innerText = t.curhatTitle;
+            document.getElementById("curhatSub").innerText = t.curhatSub;
+            document.getElementById("curhatInput").placeholder = t.curhatPlaceholder;
+            document.getElementById("curhatBtn").innerText = t.curhatBtn;
             
             if (!document.getElementById("authSection").classList.contains("hidden")) setupAuthMode();
             if (currentUser) {
@@ -973,8 +1051,8 @@
                 const count = data.subs[currentLang].length;
                 let catName = currentLang === 'zh' ? data.title[currentLang] : data.title[currentLang].split(' (')[0];
                 grid.innerHTML += `
-                    <div class="card" style="animation-delay: ${delay}s" onclick="openCategory('${key}')">
-                        <div class="card-emoji">${data.icon}</div>
+                    <div class="card" style="animation-delay: ${delay}s; border-top: 3px solid ${data.color};" onclick="openCategory('${key}')">
+                        <div class="card-emoji" style="background:${data.color}22; color:${data.color};">${data.icon}</div>
                         <div class="card-info"><div class="card-title">${catName}</div><div class="card-desc">${count} ${t.variations}</div></div>
                     </div>`;
                 delay += 0.05;
@@ -996,8 +1074,8 @@
 
             data.subs[currentLang].forEach((item, idx) => {
                 grid.innerHTML += `
-                    <div class="card span-2" style="animation-delay: ${idx * 0.05}s; margin-bottom:12px;" onclick="openDetail(${idx})">
-                        <div class="card-emoji" style="font-size:32px;">${item.emoji}</div>
+                    <div class="card span-2" style="animation-delay: ${idx * 0.05}s; margin-bottom:12px; border-left: 4px solid ${data.color};" onclick="openDetail(${idx})">
+                        <div class="card-emoji" style="font-size:32px; background:${data.color}22; color:${data.color};">${item.emoji}</div>
                         <div class="card-info"><div class="card-title" style="font-size:16px;">${item.name}</div><div class="card-desc">${t.clickRefl}</div></div>
                     </div>`;
             });
@@ -1007,11 +1085,19 @@
         function openDetail(subIdx) {
             currentEmotionView = 'detail';
             const data = emotionDB[activeCategory].subs[currentLang][subIdx];
-            document.getElementById("resEmoji").innerText = data.emoji;
+            const catColor = emotionDB[activeCategory].color;
+
+            const emojiEl = document.getElementById("resEmoji");
+            emojiEl.innerText = data.emoji;
+            emojiEl.style.background = catColor + "22";
+            emojiEl.style.color = catColor;
+
             document.getElementById("resName").innerText = data.name;
             document.getElementById("resReflection").innerText = data.reflection;
             document.getElementById("resAdvice").innerText = data.advice;
             document.getElementById("resSeeAlso").innerText = "See also: " + data.seeAlso;
+            document.getElementById("resSeeAlso").style.color = catColor;
+            document.getElementById("reflectionCardBox").style.borderColor = catColor;
 
             document.getElementById("subGrid").classList.add("hidden");
             document.getElementById("reflectionDetail").classList.remove("hidden");
@@ -1021,6 +1107,58 @@
         function goBackEmotions() {
             if (currentEmotionView === 'detail') openCategory(activeCategory);
             else if (currentEmotionView === 'subs') renderCategories();
+        }
+
+        // --- Curhat / AI Analysis Logic (connects to app.py Flask backend) ---
+        // Ganti IP/port ini kalau backend kamu jalan di alamat lain.
+        const BACKEND_URL = "http://127.0.0.1:5000";
+
+        // Peta dari kategori yang dikembalikan app.py (huruf besar di depan)
+        // ke key emotionDB (huruf kecil semua). "Enjoyment" adalah default
+        // fallback dari backend kalau tidak ada kata kunci yang cocok.
+        const BACKEND_CATEGORY_MAP = {
+            Heat: "heat", Bliss: "bliss", Heartache: "heartache",
+            Zen: "zen", Possibility: "possibility", Ego: "ego", Enjoyment: "enjoyment"
+        };
+
+        async function analyzeCurhat() {
+            const t = uiText[currentLang];
+            const input = document.getElementById("curhatInput");
+            const text = input.value.trim();
+            const resultBox = document.getElementById("curhatResult");
+
+            if (!text) { showToast(t.curhatEmpty, "error"); return; }
+
+            const btn = document.getElementById("curhatBtn");
+            const originalLabel = btn.innerText;
+            btn.innerText = "..."; btn.disabled = true;
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/analyze`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text })
+                });
+                if (!res.ok) throw new Error("Server error");
+                const data = await res.json();
+
+                const catKey = BACKEND_CATEGORY_MAP[data.detected_emotion] || "enjoyment";
+                const catData = emotionDB[catKey];
+                const catTitle = currentLang === 'zh' ? catData.title[currentLang] : catData.title[currentLang].split(' (')[0];
+
+                resultBox.classList.remove("hidden", "error");
+                resultBox.innerHTML = `
+                    <div><strong>${t.curhatResultLabel}</strong> ${catData.icon} ${catTitle}</div>
+                    <div style="opacity:0.9;">${escapeHTML(data.message)}</div>
+                    <button class="curhat-result-btn" onclick="openCategory('${catKey}')">${t.curhatSeeDetail}</button>
+                `;
+            } catch (err) {
+                resultBox.classList.remove("hidden");
+                resultBox.classList.add("error");
+                resultBox.innerHTML = `<div>${t.curhatOffline}</div>`;
+            } finally {
+                btn.innerText = originalLabel; btn.disabled = false;
+            }
         }
 
         // --- Library Logic ---
@@ -1042,8 +1180,8 @@
                 });
 
                 container.innerHTML += `
-                    <div class="lib-category-card">
-                        <div class="lib-cat-title">${catData.icon} ${catTitle}</div>
+                    <div class="lib-category-card" style="border-left: 4px solid ${catData.color};">
+                        <div class="lib-cat-title" style="color:${catData.color};">${catData.icon} ${catTitle}</div>
                         ${itemsHTML}
                     </div>`;
             }
