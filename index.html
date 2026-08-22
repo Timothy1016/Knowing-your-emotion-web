@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Box of Emotions</title>
+    <title>Know your Emotions</title>
     <meta name="description" content="Recognize, reflect on, and record 68 emotions in three languages.">
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,7 +11,7 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="apple-touch-icon" href="./icons/icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=28">
 </head>
 <body>
 
@@ -25,10 +25,11 @@
 
         <!-- HEADER -->
         <div class="header-bar" id="headerBar">
-            <div class="brand">📦 <span id="brandText">Box of Emotions</span></div>
+            <button class="brand brand-home" id="brandHome" type="button" onclick="goHomeFromBrand()" title="Kembali ke halaman utama" aria-label="Kembali ke halaman utama">📦 <span id="brandText">Know your Emotions</span></button>
             <div class="controls">
                 <button class="btn-icon hidden" id="installBtn" type="button" onclick="installPWA()" title="Install app" aria-label="Install app">⬇︎</button>
                 <button class="btn-icon" id="langBtn" onclick="toggleLang()" title="Switch Language">中文</button>
+                <button class="btn-icon btn-header-logout hidden" id="btnLogout" type="button" onclick="logout()" title="Logout" aria-label="Logout"><span aria-hidden="true">↗</span><span class="sr-only" id="btnLogoutLabel">Logout</span></button>
                 <button class="btn-icon" id="themeBtn" onclick="toggleTheme()" title="Toggle Theme">🌙</button>
             </div>
         </div>
@@ -63,11 +64,17 @@
             <div id="tabEmotions" class="hidden">
                 <div id="homeView">
                     <div class="user-greeting">
-                        <div class="greeting-text">
-                            <p id="txtHello">Selamat datang,</p>
-                            <h2 id="userNameDisplay">Teman</h2>
+                        <div class="greeting-profile">
+                            <div class="greeting-text">
+                                <p class="greeting-eyebrow" id="txtHello">Selamat datang</p>
+                                <h2 id="userNameDisplay">Teman</h2>
+                                <div class="greeting-meta">
+                                    <span class="greeting-date" id="greetingDate">Sabtu, 22 Agustus</span>
+                                </div>
+                            </div>
+                            <div class="user-avatar" id="userAvatar" aria-hidden="true">T</div>
+                            <span class="greeting-prompt"><span class="greeting-quote-mark" aria-hidden="true">“</span><span class="greeting-quote-copy"><span class="greeting-quote-label" id="greetingQuoteLabel">Refleksi hari ini</span><span id="greetingPrompt">Semua perasaan datang membawa pesan; dengarkan tanpa terburu-buru menghakimi.</span></span></span>
                         </div>
-                        <button class="btn-logout" id="btnLogout" onclick="logout()">Keluar</button>
                     </div>
 
                     <!-- CURHAT / AI ANALYSIS CARD (terhubung ke backend Flask app.py) -->
@@ -82,17 +89,35 @@
 
                     <h1 class="page-title" id="dashTitle" style="font-size: 24px;">Bagaimana perasaanmu?</h1>
                     <p class="page-subtitle" id="dashSubtitle">Pilih spektrum emosi di bawah ini.</p>
-                    <section class="wheel-card" aria-labelledby="wheelTitle">
+                    <section class="wheel-card" id="emotionWheelCard" aria-labelledby="wheelTitle">
                         <div class="wheel-heading">
-                            <span class="wheel-heading-icon" aria-hidden="true">✦</span>
+                            <span class="wheel-heading-icon" aria-hidden="true"><span>☺</span></span>
                             <div>
                                 <h2 class="wheel-title" id="wheelTitle">Emotion Wheel</h2>
-                                <p class="wheel-subtitle" id="wheelSubtitle">Tekan simbol pada roda untuk menjelajahi spektrum emosi.</p>
+                                <p class="wheel-subtitle" id="wheelSubtitle">Putar roda atau pilih simbol untuk menjelajahi spektrum emosi.</p>
                             </div>
                         </div>
                         <div class="wheel-explorer">
-                            <div class="emotion-wheel" id="emotionWheel" role="group" aria-label="11 spektrum emosi"></div>
+                            <div class="wheel-stage">
+                                <span class="wheel-pointer" aria-hidden="true"></span>
+                                <div class="emotion-wheel" id="emotionWheel" role="group" aria-label="Roda putar berisi 11 spektrum emosi"></div>
+                            </div>
                             <div class="wheel-legend" id="emotionWheelLegend" aria-label="Daftar spektrum emosi"></div>
+                        </div>
+                        <div class="wheel-result hidden" id="wheelResult" role="status" aria-live="polite" style="--result-color:var(--primary)">
+                            <div class="wheel-result-heading">
+                                <div class="wheel-result-icon" id="wheelResultIcon" aria-hidden="true">✨</div>
+                                <div>
+                                    <div class="wheel-result-kicker" id="wheelResultKicker">Hasil putaranmu</div>
+                                    <h3 class="wheel-result-title" id="wheelResultTitle">Nama Spektrum</h3>
+                                </div>
+                            </div>
+                            <p class="wheel-result-description" id="wheelResultDescription">Penjelasan singkat spektrum emosi.</p>
+                            <div class="wheel-result-meta" id="wheelResultMeta">5 variasi emosi untuk dijelajahi</div>
+                            <div class="wheel-result-actions">
+                                <button type="button" class="btn-primary wheel-result-open" id="wheelResultOpen" onclick="openSelectedWheelSpectrum()">Jelajahi spektrum</button>
+                                <button type="button" class="btn-secondary wheel-result-spin" id="wheelResultSpin" onclick="spinEmotionWheel()">Putar lagi</button>
+                            </div>
                         </div>
                     </section>
                     <div class="saved-panels" id="savedPanels"></div>
@@ -179,6 +204,37 @@
                 </div>
             </div>
 
+            <!-- TAB: GAMES -->
+            <div id="tabGames" class="hidden games-page">
+                <div class="games-page-heading">
+                    <div class="games-page-kicker" id="gamesPageKicker">MAIN BERSAMA</div>
+                    <h1 class="page-title" id="gamesPageTitle">Emotion Games 🎴</h1>
+                    <p class="page-subtitle" id="gamesPageSubtitle">Ruang khusus untuk mengenal emosi lewat permainan bersama teman.</p>
+                </div>
+                <section class="emotion-game-card" id="emotionGame" aria-labelledby="gameTitle">
+                    <div class="game-heading">
+                        <span class="game-heading-icon" aria-hidden="true">🎴</span>
+                        <div class="game-heading-copy">
+                            <div class="game-kicker" id="gameKicker">MINI GAME · 2+ PEMAIN</div>
+                            <h2 class="game-title" id="gameTitle">Cerita Bergilir</h2>
+                            <p class="game-subtitle" id="gameSubtitle">Ambil satu kartu, lalu bergantian berbagi pengalaman bersama teman.</p>
+                        </div>
+                    </div>
+                    <div class="game-stage" id="gameStage" style="--game-color:var(--primary)">
+                        <div class="game-round" id="gameRound">Siap bermain</div>
+                        <div class="game-emotion-icon" id="gameEmotionIcon" aria-hidden="true">💬</div>
+                        <div class="game-spectrum" id="gameSpectrum">Kenali cerita satu sama lain</div>
+                        <div class="game-emotion-name" id="gameEmotionName">Ambil kartu pertamamu</div>
+                        <p class="game-prompt" id="gamePrompt" aria-live="polite">Setiap pemain boleh melewati pertanyaan yang belum nyaman untuk dijawab.</p>
+                    </div>
+                    <div class="game-actions">
+                        <button type="button" class="btn-primary game-draw" id="gameDrawBtn" onclick="drawEmotionPrompt()">Ambil kartu</button>
+                        <button type="button" class="btn-secondary game-share" id="gameShareBtn" onclick="shareStoryPrompt()" disabled>Kirim pertanyaan</button>
+                    </div>
+                    <p class="game-safety" id="gameSafety">Tidak ada jawaban benar atau salah. Dengarkan tanpa menghakimi dan semua pemain boleh melewati giliran.</p>
+                </section>
+            </div>
+
             <!-- TAB: NOTES -->
             <div id="tabNotes" class="hidden">
                 <div id="notesListView">
@@ -213,8 +269,101 @@
                 </div>
             </div>
 
+            <!-- TAB: PERSONAL GROWTH -->
+            <div id="tabGrowth" class="hidden growth-page">
+                <div class="growth-page-heading">
+                    <div class="growth-kicker" id="growthKicker">KENALI POLAMU</div>
+                    <h1 class="page-title" id="growthTitle">Personal Growth 🌱</h1>
+                    <p class="page-subtitle" id="growthSubtitle">Kenali pola responsmu, lalu pilih respons yang lebih sesuai dengan nilai dan kebutuhanmu.</p>
+                </div>
+
+                <section class="growth-onboarding" id="growthOnboarding" aria-labelledby="growthIntroTitle">
+                    <div class="growth-orbit" aria-hidden="true"><span>♡</span><span>⌁</span><span>↗</span></div>
+                    <div class="growth-intro-icon" aria-hidden="true">🧭</div>
+                    <div class="growth-kicker" id="growthIntroKicker">MULAI DARI REFLEKSI KECIL</div>
+                    <h2 id="growthIntroTitle">Bagaimana kamu biasanya merespons?</h2>
+                    <p id="growthIntroText">Jawab enam situasi singkat. Tidak ada jawaban benar atau salah—hasilnya adalah kecenderungan, bukan label permanen.</p>
+                    <div class="growth-flow" id="growthFlow" aria-label="Alur personal growth">
+                        <span>Rasakan</span><b>→</b><span>Pahami</span><b>→</b><span>Pilih</span>
+                    </div>
+                    <button type="button" class="btn-primary growth-start" id="growthStartBtn" onclick="startGrowthQuiz()">Mulai refleksi</button>
+                    <p class="growth-privacy" id="growthPrivacy">🔒 Jawaban dan profil tersimpan di browser ini.</p>
+                </section>
+
+                <section class="growth-quiz hidden" id="growthQuiz" aria-labelledby="growthQuestion">
+                    <div class="growth-quiz-top">
+                        <span id="growthQuizStep">Pertanyaan 1 dari 6</span>
+                        <span id="growthQuizPercent">17%</span>
+                    </div>
+                    <div class="growth-progress" aria-hidden="true"><span id="growthProgressBar"></span></div>
+                    <div class="growth-question-icon" id="growthQuestionIcon" aria-hidden="true">💬</div>
+                    <h2 id="growthQuestion">Saat terjadi sesuatu yang tidak sesuai harapan...</h2>
+                    <p id="growthQuestionHint">Pilih jawaban yang paling mendekati respons alammu.</p>
+                    <div class="growth-options" id="growthOptions"></div>
+                    <button type="button" class="btn-link growth-quiz-exit" id="growthQuizExit" onclick="cancelGrowthQuiz()">Kembali</button>
+                </section>
+
+                <div class="growth-dashboard hidden" id="growthDashboard">
+                    <section class="growth-profile-hero" id="growthProfileHero">
+                        <div class="growth-profile-topline">
+                            <span class="growth-kicker" id="growthProfileKicker">HOW I TEND TO RESPOND</span>
+                            <button type="button" class="growth-retake" id="growthRetake" onclick="startGrowthQuiz(true)">Ulangi refleksi</button>
+                        </div>
+                        <div class="growth-profile-heading">
+                            <div class="growth-profile-icon" id="growthProfileIcon" aria-hidden="true">🌊</div>
+                            <div><p id="growthProfileLabel">Kecenderungan utamamu</p><h2 id="growthProfileName">Pemroses Perasaan</h2></div>
+                        </div>
+                        <p class="growth-profile-summary" id="growthProfileSummary"></p>
+                        <div class="growth-mix" id="growthMix"></div>
+                        <p class="growth-disclaimer" id="growthDisclaimer">Profil ini fleksibel dan dapat berubah sesuai situasi—bukan diagnosis atau label kepribadian.</p>
+                    </section>
+
+                    <section class="growth-section" aria-labelledby="growthMapTitle">
+                        <div class="growth-section-heading"><span class="growth-section-icon" aria-hidden="true">🗺️</span><div><p class="growth-kicker" id="growthMapKicker">GROWTH PROFILE</p><h2 id="growthMapTitle">Peta pertumbuhanmu</h2></div></div>
+                        <div class="growth-map" id="growthMap"></div>
+                    </section>
+
+                    <section class="growth-section" aria-labelledby="growthTriggersTitle">
+                        <div class="growth-section-heading"><span class="growth-section-icon" aria-hidden="true">⚡</span><div><p class="growth-kicker" id="growthTriggersKicker">RESPONSE TRIGGERS</p><h2 id="growthTriggersTitle">Momen yang perlu diperhatikan</h2></div></div>
+                        <div class="growth-trigger-list" id="growthTriggerList"></div>
+                    </section>
+
+                    <section class="growth-section growth-compass-card" aria-labelledby="growthCompassTitle">
+                        <div class="growth-section-heading"><span class="growth-section-icon" aria-hidden="true">🧭</span><div><p class="growth-kicker" id="growthCompassKicker">RESPONSE COMPASS</p><h2 id="growthCompassTitle">Jeda sebelum bereaksi</h2></div></div>
+                        <p class="growth-section-copy" id="growthCompassIntro"></p>
+                        <div class="response-compass" id="responseCompass"></div>
+                    </section>
+
+                    <section class="growth-section growth-coach" aria-labelledby="growthCoachTitle">
+                        <div class="growth-section-heading"><span class="growth-section-icon" aria-hidden="true">💬</span><div><p class="growth-kicker" id="growthCoachKicker">RESPONSE COACH</p><h2 id="growthCoachTitle">Susun respons yang lebih sadar</h2></div></div>
+                        <p class="growth-section-copy" id="growthCoachIntro"></p>
+                        <div class="growth-mode-tabs" role="tablist" aria-label="Mode response coach">
+                            <button type="button" id="coachSituationTab" class="growth-mode active" onclick="setGrowthCoachMode('situation')" role="tab" aria-selected="true">Situasi</button>
+                            <button type="button" id="coachDraftTab" class="growth-mode" onclick="setGrowthCoachMode('draft')" role="tab" aria-selected="false">Draf pesan</button>
+                        </div>
+                        <label class="sr-only" id="growthCoachInputLabel" for="growthCoachInput">Ceritakan situasimu</label>
+                        <textarea id="growthCoachInput" class="growth-coach-input" rows="5" placeholder="Contoh: Temanku membatalkan janji tanpa memberi kabar..."></textarea>
+                        <button type="button" class="btn-primary" id="growthCoachBtn" onclick="runGrowthCoach()">Bantu aku merespons</button>
+                        <div class="growth-coach-result hidden" id="growthCoachResult" aria-live="polite"></div>
+                        <p class="growth-disclaimer" id="growthCoachDisclaimer">Panduan reflektif lokal, bukan diagnosis atau pengganti tenaga profesional.</p>
+                    </section>
+
+                    <section class="growth-section growth-daily" aria-labelledby="growthDailyTitle">
+                        <div class="growth-section-heading"><span class="growth-section-icon" aria-hidden="true">☀️</span><div><p class="growth-kicker" id="growthDailyKicker">DAILY SCENARIO</p><h2 id="growthDailyTitle">Latihan hari ini</h2></div></div>
+                        <div id="growthDailyContent"></div>
+                    </section>
+
+                    <section class="growth-progress-card">
+                        <div><span id="growthPracticeCount">0</span><small id="growthPracticeLabel">latihan selesai</small></div>
+                        <div><span id="growthCoachCount">0</span><small id="growthCoachCountLabel">sesi refleksi</small></div>
+                    </section>
+                    <button type="button" class="btn-secondary growth-about-link" id="growthAboutLink" onclick="switchTab('about')">Tentang, privasi &amp; pengingat →</button>
+                </div>
+            </div>
+
             <!-- TAB: ABOUT -->
             <div id="tabAbout" class="hidden about-page">
+                <button type="button" class="btn-link about-back-growth" id="aboutBackGrowth" onclick="switchTab('growth')">← Kembali ke Personal Growth</button>
                 <h1 class="page-title" id="aboutTitle">Tentang &amp; Kredit ℹ️</h1>
                 <p class="page-subtitle" id="aboutSubtitle">Tujuan, batasan, dan asal konsep Box of Emotions.</p>
                 <section class="about-card">
@@ -272,20 +421,25 @@
                 <div class="nav-icon">📚</div>
                 <span id="lblNavLib">Pustaka</span>
             </button>
+            <button type="button" class="nav-item" id="navGames" onclick="switchTab('games')">
+                <div class="nav-icon">🎴</div>
+                <span id="lblNavGames">Games</span>
+            </button>
             <button type="button" class="nav-item" id="navNote" onclick="switchTab('notes')">
                 <div class="nav-icon">📝</div>
                 <span id="lblNavNote">Catatan</span>
             </button>
-            <button type="button" class="nav-item" id="navAbout" onclick="switchTab('about')">
-                <div class="nav-icon">ℹ️</div>
-                <span id="lblNavAbout">Tentang</span>
+            <button type="button" class="nav-item" id="navGrowth" onclick="switchTab('growth')">
+                <div class="nav-icon">🌱</div>
+                <span id="lblNavGrowth">Growth</span>
             </button>
         </div>
 
     </div>
 
     <script src="full-essays.js?v=1"></script>
-    <script src="emotions.js?v=16"></script>
-    <script src="app.js?v=16"></script>
+    <script src="emotions.js?v=25"></script>
+    <script src="growth.js?v=2"></script>
+    <script src="app.js?v=26"></script>
 </body>
 </html>

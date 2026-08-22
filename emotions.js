@@ -10,7 +10,7 @@ let activeSubIndex = -1;
 // --- Multi-Language Data & Comprehensive Essay Database ---
 const uiText = {
     id: {
-        brand: "Box of Emotions", langBtn: "EN",
+        brand: "Know your Emotions", langBtn: "EN",
         authRegTitle: "Buat Akun ✨", authRegSub: "Mulai kenali dan kelola emosimu hari ini.", btnReg: "Daftar Sekarang",
         authLogTitle: "Selamat Datang 👋", authLogSub: "Masuk untuk melanjutkan perjalananmu.", btnLog: "Masuk",
         switchLog: "Sudah punya akun? ", switchLogAct: "Masuk di sini",
@@ -39,7 +39,7 @@ const uiText = {
         switchLanguageLabel: "Ganti bahasa", toggleThemeLabel: "Ganti tema", openRelatedLabel: "Buka emosi terkait"
     },
     en: {
-        brand: "Box of Emotions", langBtn: "中文",
+        brand: "Know your Emotions", langBtn: "中文",
         authRegTitle: "Create Account ✨", authRegSub: "Start recognizing and managing your emotions.", btnReg: "Sign Up",
         authLogTitle: "Welcome Back 👋", authLogSub: "Sign in to continue your journey.", btnLog: "Sign In",
         switchLog: "Already have an account? ", switchLogAct: "Sign in here",
@@ -68,7 +68,7 @@ const uiText = {
         switchLanguageLabel: "Switch language", toggleThemeLabel: "Toggle theme", openRelatedLabel: "Open related emotion"
     },
     zh: {
-        brand: "情绪魔方", langBtn: "ID",
+        brand: "Know your Emotions", langBtn: "ID",
         authRegTitle: "创建账号 ✨", authRegSub: "开始认识并管理您的情绪。", btnReg: "立即注册",
         authLogTitle: "欢迎回来 👋", authLogSub: "登录以继续您的旅程。", btnLog: "登录",
         switchLog: "已有账号？ ", switchLogAct: "在此登录",
@@ -98,14 +98,41 @@ const uiText = {
     }
 };
 Object.assign(uiText.id, {
-    guest: "Lanjut sebagai tamu", guestName: "Tamu", authPrivacy: "Kata sandi diproses oleh server secara aman dan tidak disimpan di browser.",
+    guest: "Lanjut sebagai tamu", guestName: "Tamu", homeLabel: "Buka Emotion Wheel", authPrivacy: "Kata sandi diproses oleh server secara aman dan tidak disimpan di browser.",
+    goodMorning: "Selamat pagi", goodAfternoon: "Selamat siang", goodEvening: "Selamat malam", greetingQuoteLabel: "Refleksi hari ini",
+    greetingQuotes: [
+        "Semua perasaan datang membawa pesan; dengarkan tanpa terburu-buru menghakimi.",
+        "Tidak apa-apa jika hari ini kamu belum bisa menjelaskan apa yang kamu rasakan.",
+        "Perasaanmu valid, bahkan ketika orang lain tidak sepenuhnya memahaminya.",
+        "Beri dirimu ruang untuk merasa sebelum memutuskan apa yang harus dilakukan.",
+        "Emosi bukan musuh; ia membantu menunjukkan apa yang penting bagimu.",
+        "Kamu tidak harus selalu kuat untuk tetap berharga.",
+        "Menarik napas sejenak juga merupakan bentuk keberanian.",
+        "Hari yang berat tidak menentukan seluruh perjalananmu.",
+        "Mengenali perasaan adalah langkah pertama untuk merawat diri.",
+        "Kamu boleh berjalan perlahan; pemulihan bukan perlombaan.",
+        "Di balik rasa marah, mungkin ada kebutuhan yang ingin didengar.",
+        "Kesedihan tidak membuatmu lemah; ia menunjukkan bahwa sesuatu berarti.",
+        "Rasa takut bisa hadir bersamaan dengan keberanian.",
+        "Kebahagiaan kecil tetap layak dirayakan.",
+        "Kamu boleh berubah pikiran setelah memahami perasaanmu lebih baik.",
+        "Tidak semua perasaan harus segera diperbaiki; sebagian hanya perlu ditemani.",
+        "Bersikap lembut kepada diri sendiri juga sebuah kemajuan.",
+        "Kamu berhak menetapkan batas ketika hatimu membutuhkan ruang.",
+        "Apa pun yang kamu rasakan hari ini, kamu tidak sendirian.",
+        "Luangkan waktu untuk bertanya: apa yang paling kubutuhkan saat ini?"
+    ],
     authOffline: "Server akun belum tersedia. Kamu tetap dapat menggunakan mode tamu.", authWorking: "Memproses...",
     authLocalPrivacy: "Akun lokal aktif: kata sandi disimpan sebagai hash PBKDF2 bersalt di perangkat ini, bukan sebagai teks biasa.",
     authLocalExists: "Nama akun lokal tersebut sudah digunakan.", authLocalWrong: "Nama atau kata sandi akun lokal tidak cocok.", authLocalCrypto: "Browser ini tidak mendukung penyimpanan akun lokal yang aman.",
     installApp: "Pasang aplikasi", installReady: "Box of Emotions siap dipasang.", installed: "Aplikasi berhasil dipasang.",
-    wheelTitle: "Emotion Wheel", wheelSubtitle: "Tekan simbol pada roda untuk menjelajahi spektrum emosi.", wheelCenter: "11 Spektrum", wheelCenterHint: "Pilih untuk menjelajah", wheelLabel: "Roda 11 spektrum emosi", scrollTop: "Kembali ke atas",
+    wheelTitle: "Emotion Wheel", wheelSubtitle: "Putar roda atau pilih simbol untuk menjelajahi spektrum emosi.", wheelCenter: "Putar Roda", wheelCenterHint: "Temukan spektrum acak", wheelSpin: "Putar Roda", wheelSpinHint: "Temukan spektrum acak", wheelSpinning: "Sedang berputar...", wheelSpinAgain: "Tekan untuk putar lagi", wheelSelectedHint: "Terpilih · tekan simbol untuk membuka", wheelLabel: "Roda putar berisi 11 spektrum emosi", scrollTop: "Kembali ke atas",
+    wheelResultKicker: "Hasil putaranmu", wheelResultMeta: "{count} variasi emosi untuk dijelajahi", wheelResultOpen: "Jelajahi spektrum", wheelResultSpin: "Putar lagi",
+    gameKicker: "MINI GAME · 2+ PEMAIN", gameTitle: "Cerita Bergilir", gameSubtitle: "Ambil satu kartu, lalu bergantian berbagi pengalaman bersama teman.",
+    gameReady: "Siap bermain", gameReadySpectrum: "Kenali cerita satu sama lain", gameReadyName: "Ambil kartu pertamamu", gameStartPrompt: "Setiap pemain boleh melewati pertanyaan yang belum nyaman untuk dijawab.", gameRound: "Ronde", gameDraw: "Ambil kartu", gameNext: "Kartu berikutnya", gameShare: "Kirim pertanyaan", gameSafety: "Tidak ada jawaban benar atau salah. Dengarkan tanpa menghakimi dan semua pemain boleh melewati giliran.", gameShareLead: "Kartu Cerita Bergilir untukmu:", gameShareFooter: "Mau berbagi ceritamu? Kamu boleh melewatinya jika belum nyaman.", gameCopied: "Pertanyaan disalin. Kirim ke temanmu, ya!", gameShareUnavailable: "Fitur berbagi belum tersedia di browser ini.",
+    gamePrompts: ["Ceritakan kapan terakhir kali kamu merasakan {emotion}. Apa yang terjadi?", "Ketika {emotion} muncul, apa yang paling kamu butuhkan dari orang lain?", "Kalau {emotion} punya warna atau cuaca, seperti apa? Mengapa?", "Apa satu hal kecil yang membantumu menghadapi {emotion}?", "Lengkapi: ‘Saat merasa {emotion}, aku berharap teman-temanku...’", "Adakah pengalaman tentang {emotion} yang mengubah caramu memahami diri sendiri?"],
     fuzzyHint: "Pencarian tetap bekerja meskipun ada salah ketik.", spectrumKicker: "Tentang spektrum ini", spectrumNote: "Spektrum adalah kelompok pengalaman emosi, bukan satu emosi tunggal.", backToSpectrums: "Semua spektrum", backToCategory: "Kembali ke spektrum",
-    navAbout: "Tentang", favoritesTitle: "Favorit", recentTitle: "Terakhir dilihat", favorite: "Favorit", favorited: "Difavoritkan",
+    navAbout: "Tentang", navGames: "Games", gamesPageKicker: "MAIN BERSAMA", gamesPageTitle: "Emotion Games 🎴", gamesPageSubtitle: "Ruang khusus untuk mengenal emosi lewat permainan bersama teman.", favoritesTitle: "Favorit", recentTitle: "Terakhir dilihat", favorite: "Favorit", favorited: "Difavoritkan",
     filters: { all: "Semua", calm: "Tenang", heavy: "Berat", positive: "Positif", favorites: "Favorit", recent: "Terakhir dilihat", frequent: "Sering dilihat" },
     readMore: "Baca selengkapnya", readLess: "Tutup", notesSearch: "Cari catatan...", exportNotes: "Ekspor", editNote: "Edit catatan",
     noteTag: "Tag emosi", updateNote: "Perbarui", undo: "Batalkan", noteRestored: "Catatan dikembalikan.",
@@ -117,14 +144,41 @@ Object.assign(uiText.id, {
     aboutPrivacyTitle: "Privasi", aboutPrivacy: "Mode tamu dan akun lokal menyimpan data hanya di perangkat ini; akun lokal memakai hash PBKDF2 bersalt. Akun server menyinkronkan catatan, favorit, serta riwayat melalui backend."
 });
 Object.assign(uiText.en, {
-    guest: "Continue as guest", guestName: "Guest", authPrivacy: "Your password is securely processed by the server and is never stored in the browser.",
+    guest: "Continue as guest", guestName: "Guest", homeLabel: "Go to Emotion Wheel", authPrivacy: "Your password is securely processed by the server and is never stored in the browser.",
+    goodMorning: "Good morning", goodAfternoon: "Good afternoon", goodEvening: "Good evening", greetingQuoteLabel: "Today's reflection",
+    greetingQuotes: [
+        "Every feeling carries a message; listen before rushing to judge it.",
+        "It is okay if you cannot explain what you feel today.",
+        "Your feelings are valid, even when others do not fully understand them.",
+        "Give yourself room to feel before deciding what to do next.",
+        "Emotions are not enemies; they help reveal what matters to you.",
+        "You do not have to be strong all the time to remain worthy.",
+        "Taking one slow breath can also be an act of courage.",
+        "A difficult day does not define your whole journey.",
+        "Naming a feeling is the first step toward caring for yourself.",
+        "You may move slowly; healing is not a race.",
+        "Behind anger, there may be a need asking to be heard.",
+        "Sadness does not make you weak; it shows that something mattered.",
+        "Fear and courage can exist at the same time.",
+        "Small moments of happiness still deserve to be celebrated.",
+        "You may change your mind after understanding your feelings more clearly.",
+        "Not every feeling must be fixed immediately; some simply need company.",
+        "Being gentle with yourself is also a form of progress.",
+        "You are allowed to set boundaries when your heart needs space.",
+        "Whatever you are feeling today, you are not alone.",
+        "Take a moment to ask: what do I need most right now?"
+    ],
     authOffline: "The account server is unavailable. You can still use guest mode.", authWorking: "Working...",
     authLocalPrivacy: "Local account active: your password is stored as a salted PBKDF2 hash on this device, never as plain text.",
     authLocalExists: "That local account name is already in use.", authLocalWrong: "The local account name or password is incorrect.", authLocalCrypto: "This browser does not support secure local-account storage.",
     installApp: "Install app", installReady: "Box of Emotions is ready to install.", installed: "App installed successfully.",
-    wheelTitle: "Emotion Wheel", wheelSubtitle: "Tap a symbol on the wheel to explore an emotion spectrum.", wheelCenter: "11 Spectrums", wheelCenterHint: "Choose to explore", wheelLabel: "Wheel of 11 emotion spectrums", scrollTop: "Back to top",
+    wheelTitle: "Emotion Wheel", wheelSubtitle: "Spin the wheel or tap a symbol to explore an emotion spectrum.", wheelCenter: "Spin the Wheel", wheelCenterHint: "Find a random spectrum", wheelSpin: "Spin the Wheel", wheelSpinHint: "Find a random spectrum", wheelSpinning: "Spinning...", wheelSpinAgain: "Tap to spin again", wheelSelectedHint: "Selected · tap its symbol to open", wheelLabel: "Spinning wheel with 11 emotion spectrums", scrollTop: "Back to top",
+    wheelResultKicker: "Your spin result", wheelResultMeta: "{count} emotion variations to explore", wheelResultOpen: "Explore spectrum", wheelResultSpin: "Spin again",
+    gameKicker: "MINI GAME · 2+ PLAYERS", gameTitle: "Story Circle", gameSubtitle: "Draw a card, then take turns sharing experiences with friends.",
+    gameReady: "Ready to play", gameReadySpectrum: "Get to know each other's stories", gameReadyName: "Draw your first card", gameStartPrompt: "Every player may pass on a question they are not comfortable answering.", gameRound: "Round", gameDraw: "Draw a card", gameNext: "Next card", gameShare: "Send question", gameSafety: "There are no right or wrong answers. Listen without judgment, and let anyone pass their turn.", gameShareLead: "Here is your Story Circle card:", gameShareFooter: "Want to share your story? You can pass if you are not comfortable yet.", gameCopied: "Question copied. Send it to a friend!", gameShareUnavailable: "Sharing is not available in this browser yet.",
+    gamePrompts: ["Tell us about the last time you felt {emotion}. What happened?", "When {emotion} shows up, what do you need most from other people?", "If {emotion} had a color or weather, what would it be? Why?", "What is one small thing that helps you move through {emotion}?", "Finish this sentence: ‘When I feel {emotion}, I wish my friends would...’", "Has an experience with {emotion} changed how you understand yourself?"],
     fuzzyHint: "Search still works when a word is misspelled.", spectrumKicker: "About this spectrum", spectrumNote: "A spectrum is a family of emotional experiences, not one single emotion.", backToSpectrums: "All spectrums", backToCategory: "Back to spectrum",
-    navAbout: "About", favoritesTitle: "Favorites", recentTitle: "Recently viewed", favorite: "Favorite", favorited: "Favorited",
+    navAbout: "About", navGames: "Games", gamesPageKicker: "PLAY TOGETHER", gamesPageTitle: "Emotion Games 🎴", gamesPageSubtitle: "A dedicated space to explore emotions through games with friends.", favoritesTitle: "Favorites", recentTitle: "Recently viewed", favorite: "Favorite", favorited: "Favorited",
     filters: { all: "All", calm: "Calm", heavy: "Heavy", positive: "Positive", favorites: "Favorites", recent: "Recently viewed", frequent: "Frequently viewed" },
     readMore: "Read more", readLess: "Show less", notesSearch: "Search notes...", exportNotes: "Export", editNote: "Edit note",
     noteTag: "Emotion tag", updateNote: "Update", undo: "Undo", noteRestored: "Note restored.",
@@ -136,14 +190,41 @@ Object.assign(uiText.en, {
     aboutPrivacyTitle: "Privacy", aboutPrivacy: "Guest mode and local accounts keep data on this device; local accounts use salted PBKDF2 hashes. Server accounts synchronize notes, favorites, and history through the backend."
 });
 Object.assign(uiText.zh, {
-    guest: "以访客身份继续", guestName: "访客", authPrivacy: "密码由服务器安全处理，不会存储在浏览器中。",
+    guest: "以访客身份继续", guestName: "访客", homeLabel: "前往情绪轮", authPrivacy: "密码由服务器安全处理，不会存储在浏览器中。",
+    goodMorning: "早上好", goodAfternoon: "下午好", goodEvening: "晚上好", greetingQuoteLabel: "今日心语",
+    greetingQuotes: [
+        "每一种感受都带着讯息；先倾听，不必急着评判。",
+        "如果今天还说不清自己的感受，也没有关系。",
+        "即使别人无法完全理解，你的感受依然真实而重要。",
+        "在决定下一步之前，先给自己一些感受的空间。",
+        "情绪不是敌人；它们会告诉你什么对你很重要。",
+        "你不需要一直坚强，依然值得被珍惜。",
+        "慢慢深呼吸一次，也是一种勇敢。",
+        "艰难的一天并不能定义你的整段旅程。",
+        "说出感受的名字，是照顾自己的第一步。",
+        "你可以慢慢前进；疗愈不是一场比赛。",
+        "愤怒背后，也许藏着一个渴望被听见的需要。",
+        "悲伤并不代表软弱，它说明有些事情曾经很重要。",
+        "恐惧与勇气可以同时存在。",
+        "微小的快乐也值得庆祝。",
+        "更理解自己的感受后，你可以改变想法。",
+        "并非所有感受都要立刻修复；有些只需要陪伴。",
+        "温柔地对待自己，也是一种进步。",
+        "当内心需要空间时，你有权设下界限。",
+        "无论今天感受到什么，你都不是孤单一人。",
+        "花一点时间问自己：此刻我最需要什么？"
+    ],
     authOffline: "账户服务器暂不可用。你仍可使用访客模式。", authWorking: "处理中...",
     authLocalPrivacy: "本地账户已启用：密码以加盐 PBKDF2 哈希存储在此设备上，而不是明文。",
     authLocalExists: "该本地账户名称已被使用。", authLocalWrong: "本地账户名称或密码不正确。", authLocalCrypto: "此浏览器不支持安全的本地账户存储。",
     installApp: "安装应用", installReady: "Box of Emotions 已可安装。", installed: "应用安装成功。",
-    wheelTitle: "情绪轮", wheelSubtitle: "点击情绪轮上的符号，探索不同的情绪光谱。", wheelCenter: "11 种光谱", wheelCenterHint: "选择并探索", wheelLabel: "11 种情绪光谱轮", scrollTop: "返回顶部",
+    wheelTitle: "情绪轮", wheelSubtitle: "转动情绪轮或点击符号，探索不同的情绪光谱。", wheelCenter: "转动情绪轮", wheelCenterHint: "随机发现一种情绪光谱", wheelSpin: "转动情绪轮", wheelSpinHint: "随机发现一种情绪光谱", wheelSpinning: "转动中...", wheelSpinAgain: "点击再次转动", wheelSelectedHint: "已选中 · 点击符号打开", wheelLabel: "包含 11 种情绪光谱的转盘", scrollTop: "返回顶部",
+    wheelResultKicker: "你的转盘结果", wheelResultMeta: "探索 {count} 种情绪变化", wheelResultOpen: "探索这个光谱", wheelResultSpin: "再次转动",
+    gameKicker: "迷你游戏 · 2 人以上", gameTitle: "故事接力", gameSubtitle: "抽一张卡片，和朋友轮流分享情绪经历。",
+    gameReady: "准备开始", gameReadySpectrum: "了解彼此的故事", gameReadyName: "抽取第一张卡片", gameStartPrompt: "每位玩家都可以跳过暂时不愿回答的问题。", gameRound: "第", gameDraw: "抽一张卡", gameNext: "下一张卡", gameShare: "发送问题", gameSafety: "答案没有对错。请不带评判地倾听，也允许任何人跳过自己的回合。", gameShareLead: "这是给你的故事接力卡：", gameShareFooter: "愿意分享你的故事吗？如果还没准备好，也可以跳过。", gameCopied: "问题已复制，可以发给朋友了！", gameShareUnavailable: "此浏览器暂不支持分享功能。",
+    gamePrompts: ["说说你上一次感到{emotion}是什么时候。当时发生了什么？", "当{emotion}出现时，你最需要别人给予什么？", "如果{emotion}是一种颜色或天气，它会是什么？为什么？", "有什么小事情能帮助你度过{emotion}？", "完成这句话：‘当我感到{emotion}时，我希望朋友们……’", "关于{emotion}的某次经历，是否改变了你理解自己的方式？"],
     fuzzyHint: "即使输入有拼写错误，搜索仍然有效。", spectrumKicker: "关于这个情绪谱系", spectrumNote: "情绪谱系是一组彼此相关的情绪体验，而不是某一种单独的情绪。", backToSpectrums: "所有情绪谱系", backToCategory: "返回情绪谱系",
-    navAbout: "关于", favoritesTitle: "收藏", recentTitle: "最近浏览", favorite: "收藏", favorited: "已收藏",
+    navAbout: "关于", navGames: "游戏", gamesPageKicker: "一起玩", gamesPageTitle: "情绪游戏 🎴", gamesPageSubtitle: "和朋友一起通过游戏探索情绪的专属空间。", favoritesTitle: "收藏", recentTitle: "最近浏览", favorite: "收藏", favorited: "已收藏",
     filters: { all: "全部", calm: "平静", heavy: "沉重", positive: "积极", favorites: "收藏", recent: "最近浏览", frequent: "经常浏览" },
     readMore: "阅读全文", readLess: "收起", notesSearch: "搜索笔记...", exportNotes: "导出", editNote: "编辑笔记",
     noteTag: "情绪标签", updateNote: "更新", undo: "撤销", noteRestored: "笔记已恢复。",
@@ -154,6 +235,73 @@ Object.assign(uiText.zh, {
     aboutCreditTitle: "鸣谢与语言", aboutCredit: "概念与说明改编自项目所有者提供的 Box of Emotions 材料。内容提供印尼语、英语和中文版本；没有直接对应词的文化术语会保留原文。",
     aboutPrivacyTitle: "隐私", aboutPrivacy: "访客模式和本地账户仅在此设备保存数据；本地账户使用加盐 PBKDF2 哈希。服务器账户通过后端同步笔记、收藏和浏览记录。"
 });
+
+// Twenty reflection themes paired with five gentle next steps create exactly
+// 100 additional, aligned variations in every supported language.
+const additionalGreetingQuoteParts = {
+    id: {
+        starters: [
+            "Ketika pikiran terasa penuh, berhenti sejenak;", "Saat hatimu belum menemukan jawabannya, beri waktu;",
+            "Jika hari ini terasa lebih berat dari biasanya, pelankan langkah;", "Ketika kamu mulai membandingkan perjalananmu, kembali pada dirimu;",
+            "Saat rasa marah muncul, cari pesan di baliknya;", "Ketika kesedihan datang, jangan buru-buru mengusirnya;",
+            "Saat kecemasan membayangkan banyak kemungkinan, kembali ke saat ini;", "Ketika tubuh meminta istirahat, dengarkan sinyalnya;",
+            "Saat kamu takut mengecewakan orang lain, ingat kebutuhanmu juga;", "Ketika sebuah batas perlu disampaikan, kamu boleh bersikap jujur;",
+            "Saat sesuatu tidak berjalan sesuai rencana, beri ruang untuk menyesuaikan diri;", "Ketika kamu merasa tertinggal, hormati ritmemu sendiri;",
+            "Saat kegembiraan kecil hadir, izinkan dirimu menikmatinya;", "Ketika keraguan muncul, tidak semua hal harus langsung dipastikan;",
+            "Saat kamu kehilangan kata-kata, keheningan pun dapat menemani;", "Ketika kamu terlalu keras kepada diri sendiri, ubah nada bicaramu;",
+            "Saat hubungan terasa rumit, pisahkan fakta dari asumsi;", "Ketika masa depan tampak kabur, fokuslah pada langkah terdekat;",
+            "Saat kamu ingin segera bereaksi, buat sedikit ruang sebelum menjawab;", "Ketika kamu merasa sendirian, carilah satu koneksi yang terasa aman;"
+        ],
+        endings: [
+            "kamu tidak harus memahami semuanya sekaligus.", "satu napas sadar sudah menjadi langkah yang berarti.",
+            "dengarkan kebutuhanmu dengan lembut, tanpa menghakimi.", "pilih satu hal kecil yang dapat kamu lakukan sekarang.",
+            "ingat bahwa perasaan ini boleh hadir dan akan berubah."
+        ]
+    },
+    en: {
+        starters: [
+            "When your mind feels crowded, pause for a moment;", "When your heart has not found an answer, give it time;",
+            "If today feels heavier than usual, slow your pace;", "When you begin comparing your journey, return to yourself;",
+            "When anger appears, look for the message beneath it;", "When sadness arrives, do not rush to send it away;",
+            "When anxiety imagines many possibilities, return to this moment;", "When your body asks for rest, listen to its signal;",
+            "When you fear disappointing someone, remember your needs too;", "When a boundary needs to be expressed, you may be honest;",
+            "When something does not go to plan, make room to adjust;", "When you feel behind, honor your own rhythm;",
+            "When a small joy appears, let yourself enjoy it;", "When doubt appears, not everything needs immediate certainty;",
+            "When words are hard to find, silence can keep you company;", "When you are too hard on yourself, soften your inner voice;",
+            "When a relationship feels complicated, separate facts from assumptions;", "When the future looks unclear, focus on the nearest step;",
+            "When you want to react immediately, make a little room before replying;", "When you feel alone, reach for one connection that feels safe;"
+        ],
+        endings: [
+            "you do not have to understand everything at once.", "one mindful breath is already a meaningful step.",
+            "listen to your needs gently, without judgment.", "choose one small thing you can do right now.",
+            "remember that this feeling is allowed to be here and will change."
+        ]
+    },
+    zh: {
+        starters: [
+            "当思绪变得拥挤时，先停一下；", "当内心还没有答案时，给它一点时间；",
+            "如果今天比平常更沉重，放慢脚步；", "当你开始比较彼此的旅程时，回到自己身上；",
+            "当愤怒出现时，看看它背后的讯息；", "当悲伤到来时，不必急着赶走它；",
+            "当焦虑想象许多可能时，回到此刻；", "当身体请求休息时，听一听它的讯号；",
+            "当你害怕让别人失望时，也别忘记自己的需要；", "当界限需要被说出来时，你可以诚实；",
+            "当事情没有按计划进行时，给自己调整的空间；", "当你觉得落后时，尊重自己的节奏；",
+            "当微小的快乐出现时，允许自己享受它；", "当怀疑出现时，不是所有事情都要立刻确定；",
+            "当你找不到语言时，沉默也可以陪伴你；", "当你对自己太苛刻时，放柔内心的语气；",
+            "当关系变得复杂时，把事实与假设分开；", "当前方显得模糊时，专注于最近的一步；",
+            "当你想立刻反应时，先为回应留一点空间；", "当你感到孤单时，寻找一段让你安心的连接；"
+        ],
+        endings: [
+            "你不需要一次理解所有事情。", "一次有意识的呼吸，已经是有意义的一步。",
+            "温柔而不带评判地听听自己的需要。", "选择一件此刻能够完成的小事。",
+            "记得这种感受可以存在，也会慢慢变化。"
+        ]
+    }
+};
+
+for (const lang of ["id", "en", "zh"]) {
+    const parts = additionalGreetingQuoteParts[lang];
+    uiText[lang].greetingQuotes.push(...parts.starters.flatMap(starter => parts.endings.map(ending => `${starter} ${ending}`)));
+}
 
 const spectrumDescriptions = {
     emptiness: {

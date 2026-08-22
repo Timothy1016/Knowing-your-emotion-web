@@ -10,7 +10,10 @@ const API_URL = window.BOX_API_URL || (
             : location.origin)
 );
 
-const EMPTY_STATE = () => ({ version: 1, notes: [], favorites: [], history: [], viewCounts: {} });
+const EMPTY_STATE = () => ({
+    version: 1, notes: [], favorites: [], history: [], viewCounts: {},
+    growth: { profile: null, dailyAnswers: {}, coachSessions: 0 }
+});
 const CATEGORY_TONES = {
     calm: ["zen", "enjoyment"],
     positive: ["zen", "bliss", "enjoyment", "possibility", "ego"],
@@ -40,6 +43,7 @@ const LOCAL_EMOTION_KEYWORDS = {
 };
 const LOCAL_NEGATIONS = ["tidak", "tak", "bukan", "belum", "gak", "nggak", "enggak", "no", "not", "never"];
 const REMINDER_STORAGE_KEY = "boxDailyReminder";
+const GREETING_QUOTE_STORAGE_KEY = "boxLastGreetingQuote";
 const REMINDER_NOTIFICATION = Object.freeze({
     title: "Box of Emotions",
     body: "Take a moment to check in with yourself. How are you feeling today?"
@@ -57,6 +61,16 @@ let applyingRoute = false;
 let deferredInstallPrompt = null;
 let reminderTimer = null;
 let reminderInFlight = false;
+let wheelRotation = 0;
+let wheelSpinTimer = null;
+let selectedWheelKey = "";
+let storyGameRound = 0;
+let activeStoryCard = null;
+let greetingQuoteIndex = -1;
+let growthQuizIndex = 0;
+let growthQuizScores = Object.fromEntries(GROWTH_TRAITS.map(key => [key, 0]));
+let growthQuizActive = false;
+let growthCoachMode = "situation";
 
 window.addEventListener("DOMContentLoaded", initializeApp, { once: true });
 window.addEventListener("hashchange", () => currentUser && applyRoute());
@@ -117,12 +131,26 @@ function safeJSON(value, fallback) {
 
 function normalizeState(value) {
     const state = value && typeof value === "object" ? value : EMPTY_STATE();
+    const growth = state.growth && typeof state.growth === "object" ? state.growth : {};
+    const profile = growth.profile && GROWTH_TRAITS.includes(growth.profile.primary)
+        ? {
+            primary: growth.profile.primary,
+            secondary: GROWTH_TRAITS.includes(growth.profile.secondary) ? growth.profile.secondary : growth.profile.primary,
+            scores: Object.fromEntries(GROWTH_TRAITS.map(key => [key, Number(growth.profile.scores?.[key]) || 0])),
+            completedAt: growth.profile.completedAt || ""
+        }
+        : null;
     return {
         version: 1,
         notes: Array.isArray(state.notes) ? state.notes : [],
         favorites: Array.isArray(state.favorites) ? state.favorites : [],
         history: Array.isArray(state.history) ? state.history : [],
-        viewCounts: state.viewCounts && typeof state.viewCounts === "object" ? state.viewCounts : {}
+        viewCounts: state.viewCounts && typeof state.viewCounts === "object" ? state.viewCounts : {},
+        growth: {
+            profile,
+            dailyAnswers: growth.dailyAnswers && typeof growth.dailyAnswers === "object" ? growth.dailyAnswers : {},
+            coachSessions: Math.max(0, Number(growth.coachSessions) || 0)
+        }
     };
 }
 
@@ -193,11 +221,13 @@ function toggleLang() {
 function updateLanguageUI() {
     const t = uiText[currentLang];
     document.documentElement.lang = currentLang === "zh" ? "zh-CN" : currentLang;
+    document.title = t.brand;
     setText({
-        brandText: t.brand, lblUser: t.lblUser, lblPass: t.lblPass, txtHello: t.hello, btnLogout: t.logout,
+        brandText: t.brand, lblUser: t.lblUser, lblPass: t.lblPass, btnLogoutLabel: t.logout,
         txtBack: t.btnBack, lblRefl: t.lblRefl, lblAdv: t.lblAdv, lblSeeAlso: t.lblSeeAlso,
-        lblNavEmo: t.navEmo, lblNavLib: t.navLib, lblNavNote: t.navNote, lblNavAbout: t.navAbout,
+        lblNavEmo: t.navEmo, lblNavLib: t.navLib, lblNavGames: t.navGames, lblNavNote: t.navNote, lblNavGrowth: growthCopy[currentLang].nav,
         libTitle: t.libTitle, libSubtitle: t.libSub, notesTitle: t.notesTitle, notesSubtitle: t.notesSub,
+        gamesPageKicker: t.gamesPageKicker, gamesPageTitle: t.gamesPageTitle, gamesPageSubtitle: t.gamesPageSubtitle,
         createNoteTitle: editingNoteId ? t.editNote : t.createNoteTitle, btnCancelNote: t.btnCancel,
         btnSaveNote: editingNoteId ? t.updateNote : t.btnSave, curhatTitle: t.curhatTitle, curhatSub: t.curhatSub,
         curhatSafety: t.curhatSafety, btnGuest: t.guest, authPrivacy: STATIC_MODE ? t.authLocalPrivacy : t.authPrivacy, btnExportNotes: t.exportNotes,
@@ -212,8 +242,12 @@ function updateLanguageUI() {
     });
     const langBtn = document.getElementById("langBtn");
     langBtn.innerText = t.langBtn; langBtn.title = t.switchLanguageLabel; langBtn.setAttribute("aria-label", t.switchLanguageLabel);
+    const brandHome = document.getElementById("brandHome");
+    brandHome.title = t.homeLabel; brandHome.setAttribute("aria-label", t.homeLabel);
     const themeBtn = document.getElementById("themeBtn");
     themeBtn.title = t.toggleThemeLabel; themeBtn.setAttribute("aria-label", t.toggleThemeLabel);
+    const logoutButton = document.getElementById("btnLogout");
+    logoutButton.title = t.logout; logoutButton.setAttribute("aria-label", t.logout);
     document.getElementById("librarySearch").placeholder = t.searchPlaceholder;
     document.getElementById("username").placeholder = t.usernamePlaceholder;
     document.getElementById("libraryClear").setAttribute("aria-label", t.clearSearch);
@@ -226,6 +260,9 @@ function updateLanguageUI() {
     installBtn.title = t.installApp; installBtn.setAttribute("aria-label", t.installApp);
     const scrollFab = document.getElementById("scrollFab");
     scrollFab.title = t.scrollTop; scrollFab.setAttribute("aria-label", t.scrollTop);
+    if (currentUser) renderUserGreeting();
+    renderStoryGame();
+    renderGrowth();
     updateReminderUI();
     document.querySelectorAll(".filter-chip").forEach(button => button.innerText = t.filters[button.dataset.filter]);
     setupAuthMode();
@@ -238,6 +275,39 @@ function setText(values) {
         const element = document.getElementById(id);
         if (element && value !== undefined) element.innerText = value;
     });
+}
+
+function renderUserGreeting(now = new Date()) {
+    if (!currentUser) return;
+    const t = uiText[currentLang];
+    const hour = now.getHours();
+    const greeting = hour < 12 ? t.goodMorning : (hour < 18 ? t.goodAfternoon : t.goodEvening);
+    const locale = currentLang === "id" ? "id-ID" : (currentLang === "zh" ? "zh-CN" : "en-US");
+    const dateLabel = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long" }).format(now);
+    const nameParts = currentUser.trim().split(/\s+/).filter(Boolean);
+    const initials = nameParts.slice(0, 2).map(part => Array.from(part)[0]?.toUpperCase() || "").join("") || "☺";
+    const avatarHue = Array.from(currentUser).reduce((total, character) => total + character.codePointAt(0), 0) % 360;
+    const quoteIndex = greetingQuoteIndex >= 0 ? greetingQuoteIndex : 0;
+
+    setText({
+        txtHello: greeting,
+        userNameDisplay: currentUser,
+        greetingDate: dateLabel,
+        greetingQuoteLabel: t.greetingQuoteLabel,
+        greetingPrompt: t.greetingQuotes[quoteIndex] || t.greetingQuotes[0],
+        userAvatar: initials
+    });
+    document.getElementById("userAvatar").style.setProperty("--avatar-hue", avatarHue);
+}
+
+function selectGreetingQuote() {
+    const quoteCount = uiText.id.greetingQuotes.length;
+    const lastIndex = Number.parseInt(localStorage.getItem(GREETING_QUOTE_STORAGE_KEY), 10);
+    let nextIndex = Math.floor(Math.random() * quoteCount);
+    if (quoteCount > 1 && nextIndex === lastIndex) nextIndex = (nextIndex + 1) % quoteCount;
+    greetingQuoteIndex = nextIndex;
+    localStorage.setItem(GREETING_QUOTE_STORAGE_KEY, String(nextIndex));
+    return nextIndex;
 }
 
 // Authentication: server-side password hashes and HttpOnly session cookies.
@@ -364,7 +434,8 @@ async function logout() {
     }
     if (accountMode === "local-account") localStorage.removeItem("boxLocalSession");
     currentUser = ""; userState = EMPTY_STATE();
-    ["tabEmotions", "tabLibrary", "tabNotes", "tabAbout"].forEach(id => document.getElementById(id).classList.add("hidden"));
+    ["tabEmotions", "tabLibrary", "tabGames", "tabNotes", "tabGrowth", "tabAbout"].forEach(id => document.getElementById(id).classList.add("hidden"));
+    document.getElementById("btnLogout").classList.add("hidden");
     document.getElementById("bottomNav").classList.remove("show");
     document.getElementById("authSection").classList.remove("hidden");
     history.replaceState(null, "", location.pathname + location.search);
@@ -373,7 +444,9 @@ async function logout() {
 
 function showApp() {
     document.getElementById("authSection").classList.add("hidden");
-    document.getElementById("userNameDisplay").innerText = currentUser;
+    selectGreetingQuote();
+    renderUserGreeting();
+    document.getElementById("btnLogout").classList.remove("hidden");
     document.getElementById("bottomNav").classList.add("show");
     if (!location.hash) history.replaceState(null, "", "#emotions");
     applyRoute();
@@ -384,12 +457,22 @@ function setHash(hash, replace = false) {
     history[replace ? "replaceState" : "pushState"](null, "", hash);
 }
 
+function goHomeFromBrand() {
+    if (currentUser) {
+        switchTab("emotions");
+        document.getElementById("emotionWheelCard")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+        return;
+    }
+    document.getElementById("scrollArea").scrollTo({ top: 0, behavior: "smooth" });
+    document.getElementById("username")?.focus();
+}
+
 function applyRoute(preserveDetail = false) {
     if (!currentUser) return;
     applyingRoute = true;
     const parts = location.hash.replace(/^#/, "").split("/").filter(Boolean);
     const route = parts[0] || "emotions";
-    if (route === "library" || route === "notes" || route === "about") switchTab(route, false);
+    if (route === "library" || route === "games" || route === "notes" || route === "growth" || route === "about") switchTab(route, false);
     else if (route === "category" && emotionDB[parts[1]]) {
         switchTab("emotions", false); openCategory(parts[1], false);
     } else if (route === "emotion" && emotionDB[parts[1]]) {
@@ -401,20 +484,221 @@ function applyRoute(preserveDetail = false) {
 
 function switchTab(tabName, updateRoute = true) {
     activeTab = tabName;
-    const map = { emotions: ["tabEmotions", "navEmo"], library: ["tabLibrary", "navLib"], notes: ["tabNotes", "navNote"], about: ["tabAbout", "navAbout"] };
+    const map = { emotions: ["tabEmotions", "navEmo"], library: ["tabLibrary", "navLib"], games: ["tabGames", "navGames"], notes: ["tabNotes", "navNote"], growth: ["tabGrowth", "navGrowth"], about: ["tabAbout", null] };
+    if (!map[tabName]) tabName = "emotions";
     Object.values(map).forEach(([tab, nav]) => {
         document.getElementById(tab).classList.add("hidden");
-        document.getElementById(nav).classList.remove("active");
-        document.getElementById(nav).removeAttribute("aria-current");
+        if (nav) {
+            document.getElementById(nav).classList.remove("active");
+            document.getElementById(nav).removeAttribute("aria-current");
+        }
     });
     document.getElementById(map[tabName][0]).classList.remove("hidden");
-    document.getElementById(map[tabName][1]).classList.add("active");
-    document.getElementById(map[tabName][1]).setAttribute("aria-current", "page");
+    if (map[tabName][1]) {
+        document.getElementById(map[tabName][1]).classList.add("active");
+        document.getElementById(map[tabName][1]).setAttribute("aria-current", "page");
+    }
     document.getElementById("scrollArea").scrollTop = 0;
     if (tabName === "emotions") renderCategories();
     if (tabName === "library") renderLibrary();
+    if (tabName === "games") renderStoryGame();
     if (tabName === "notes") { hideCreateNote(); renderNotes(); }
+    if (tabName === "growth") renderGrowth();
     if (updateRoute) setHash(`#${tabName}`);
+}
+
+function growthText(template, values = {}) {
+    return Object.entries(values).reduce((text, [key, value]) => text.replaceAll(`{${key}}`, value), template);
+}
+
+function growthState() {
+    if (!userState.growth || typeof userState.growth !== "object") userState.growth = EMPTY_STATE().growth;
+    return userState.growth;
+}
+
+function renderGrowth() {
+    const t = growthCopy[currentLang];
+    setText({
+        growthKicker: t.kicker, growthTitle: t.title, growthSubtitle: t.subtitle,
+        growthIntroKicker: t.introKicker, growthIntroTitle: t.introTitle, growthIntroText: t.introText,
+        growthStartBtn: t.start, growthPrivacy: t.privacy, growthQuestionHint: t.questionHint, growthQuizExit: t.back,
+        growthProfileKicker: t.profileKicker, growthRetake: t.retake, growthProfileLabel: t.profileLabel,
+        growthDisclaimer: t.disclaimer, growthMapKicker: t.mapKicker, growthMapTitle: t.mapTitle,
+        growthTriggersKicker: t.triggersKicker, growthTriggersTitle: t.triggersTitle,
+        growthCompassKicker: t.compassKicker, growthCompassTitle: t.compassTitle, growthCompassIntro: t.compassIntro,
+        growthCoachKicker: t.coachKicker, growthCoachTitle: t.coachTitle, growthCoachIntro: t.coachIntro,
+        growthCoachDisclaimer: t.coachDisclaimer, growthDailyKicker: t.dailyKicker, growthDailyTitle: t.dailyTitle,
+        growthPracticeLabel: t.practiceLabel, growthCoachCountLabel: t.coachCountLabel,
+        growthAboutLink: t.aboutLink, aboutBackGrowth: t.aboutBack
+    });
+    document.getElementById("growthFlow").innerHTML = t.flow.map((label, index) =>
+        `${index ? "<b aria-hidden=\"true\">→</b>" : ""}<span>${escapeHTML(label)}</span>`
+    ).join("");
+    document.getElementById("responseCompass").innerHTML = t.compass.map((item, index) => `
+        <article class="compass-step">
+            <div class="compass-step-head"><span aria-hidden="true">${item.icon}</span><b>${escapeHTML(item.label)}</b></div>
+            <h3>${escapeHTML(item.title)}</h3><p>${escapeHTML(item.text)}</p>
+        </article>${index < t.compass.length - 1 ? '<span class="compass-arrow" aria-hidden="true">→</span>' : ""}`
+    ).join("");
+    setGrowthCoachMode(growthCoachMode, false);
+
+    const onboarding = document.getElementById("growthOnboarding");
+    const quiz = document.getElementById("growthQuiz");
+    const dashboard = document.getElementById("growthDashboard");
+    onboarding.classList.add("hidden"); quiz.classList.add("hidden"); dashboard.classList.add("hidden");
+    if (growthQuizActive) {
+        quiz.classList.remove("hidden");
+        renderGrowthQuestion();
+    } else if (growthState().profile) {
+        dashboard.classList.remove("hidden");
+        renderGrowthDashboard();
+    } else onboarding.classList.remove("hidden");
+}
+
+function startGrowthQuiz() {
+    growthQuizIndex = 0;
+    growthQuizScores = Object.fromEntries(GROWTH_TRAITS.map(key => [key, 0]));
+    growthQuizActive = true;
+    renderGrowth();
+    document.getElementById("scrollArea").scrollTop = 0;
+}
+
+function cancelGrowthQuiz() {
+    growthQuizActive = false;
+    renderGrowth();
+}
+
+function renderGrowthQuestion() {
+    const t = growthCopy[currentLang], total = t.questions.length;
+    const question = t.questions[growthQuizIndex];
+    if (!question) return completeGrowthQuiz();
+    const current = growthQuizIndex + 1, percent = Math.round(current / total * 100);
+    setText({
+        growthQuizStep: growthText(t.step, { current, total }), growthQuizPercent: `${percent}%`,
+        growthQuestionIcon: question.icon, growthQuestion: question.text, growthQuestionHint: t.questionHint
+    });
+    document.getElementById("growthProgressBar").style.width = `${percent}%`;
+    document.getElementById("growthOptions").innerHTML = question.options.map((option, index) => `
+        <button type="button" class="growth-option" onclick="answerGrowthQuestion(${growthQuizIndex}, ${index})">
+            <span class="growth-option-letter">${String.fromCharCode(65 + index)}</span><span>${escapeHTML(option)}</span><b aria-hidden="true">→</b>
+        </button>`).join("");
+}
+
+function answerGrowthQuestion(questionIndex, optionIndex) {
+    if (!growthQuizActive || questionIndex !== growthQuizIndex || !GROWTH_QUIZ_SCORES[questionIndex]?.[optionIndex]) return;
+    const traits = GROWTH_QUIZ_SCORES[questionIndex][optionIndex];
+    traits.forEach((trait, index) => { growthQuizScores[trait] += index === 0 ? 2 : 1; });
+    growthQuizIndex += 1;
+    if (growthQuizIndex >= growthCopy[currentLang].questions.length) completeGrowthQuiz();
+    else renderGrowthQuestion();
+}
+
+function completeGrowthQuiz() {
+    const ranking = [...GROWTH_TRAITS].sort((left, right) => growthQuizScores[right] - growthQuizScores[left]);
+    growthState().profile = {
+        primary: ranking[0], secondary: ranking[1], scores: { ...growthQuizScores }, completedAt: new Date().toISOString()
+    };
+    growthQuizActive = false;
+    persistState();
+    renderGrowth();
+    document.getElementById("scrollArea").scrollTop = 0;
+}
+
+function renderGrowthDashboard() {
+    const t = growthCopy[currentLang], state = growthState(), profile = state.profile;
+    if (!profile) return;
+    const primary = t.tendencies[profile.primary], secondary = t.tendencies[profile.secondary];
+    setText({
+        growthProfileIcon: primary.icon, growthProfileName: primary.name, growthProfileSummary: primary.summary,
+        growthPracticeCount: Object.keys(state.dailyAnswers).length, growthCoachCount: state.coachSessions
+    });
+    const total = Math.max(1, Object.values(profile.scores).reduce((sum, score) => sum + score, 0));
+    document.getElementById("growthMix").innerHTML = `<p>${escapeHTML(t.mixLabel)}: <strong>${escapeHTML(secondary.name)}</strong></p>` +
+        GROWTH_TRAITS.map(key => {
+            const item = t.tendencies[key], percent = Math.round(profile.scores[key] / total * 100);
+            return `<div class="growth-score"><span>${item.icon} ${escapeHTML(item.short)}</span><b>${percent}%</b><i><em style="width:${percent}%"></em></i></div>`;
+        }).join("");
+    document.getElementById("growthMap").innerHTML = [primary.who, primary.watch, primary.grow].map((text, index) => `
+        <article class="growth-map-card growth-map-${index}"><span>${escapeHTML(t.mapLabels[index])}</span><p>${escapeHTML(text)}</p></article>`).join("");
+    document.getElementById("growthTriggerList").innerHTML = primary.triggers.map((trigger, triggerIndex) => `
+        <article class="growth-trigger">
+            <div class="growth-trigger-number">0${triggerIndex + 1}</div>
+            ${trigger.map((text, index) => `<div><span>${escapeHTML(t.triggerLabels[index])}</span><p>${escapeHTML(text)}</p></div>`).join("")}
+        </article>`).join("");
+    renderGrowthDaily();
+}
+
+function setGrowthCoachMode(mode, clearResult = true) {
+    growthCoachMode = mode === "draft" ? "draft" : "situation";
+    const t = growthCopy[currentLang], isDraft = growthCoachMode === "draft";
+    const situationTab = document.getElementById("coachSituationTab"), draftTab = document.getElementById("coachDraftTab");
+    situationTab.classList.toggle("active", !isDraft); draftTab.classList.toggle("active", isDraft);
+    situationTab.setAttribute("aria-selected", String(!isDraft)); draftTab.setAttribute("aria-selected", String(isDraft));
+    setText({
+        coachSituationTab: t.situationTab, coachDraftTab: t.draftTab,
+        growthCoachInputLabel: isDraft ? t.draftLabel : t.situationLabel,
+        growthCoachBtn: isDraft ? t.coachButtonDraft : t.coachButtonSituation
+    });
+    document.getElementById("growthCoachInput").placeholder = isDraft ? t.draftPlaceholder : t.situationPlaceholder;
+    if (clearResult) document.getElementById("growthCoachResult").classList.add("hidden");
+}
+
+function growthCoachSteps(profile) {
+    if (currentLang === "en") return ["Pause for one slow breath and lower the urgency.", "Write one observed fact and one assumption separately.", profile.grow];
+    if (currentLang === "zh") return ["缓慢呼吸一次，降低此刻的紧迫感。", "分别写下一个观察到的事实和一个假设。", profile.grow];
+    return ["Ambil satu napas perlahan dan turunkan rasa mendesak.", "Tulis satu fakta yang terlihat dan satu asumsi secara terpisah.", profile.grow];
+}
+
+function runGrowthCoach() {
+    const t = growthCopy[currentLang], input = document.getElementById("growthCoachInput"), text = input.value.trim();
+    const result = document.getElementById("growthCoachResult");
+    if (!text) return showToast(t.coachEmpty);
+    if (containsCrisisLanguage(text)) return showCrisisMessage(result);
+    const profile = t.tendencies[growthState().profile?.primary || "reflective"];
+    const analysis = analyzeEmotionLocally(text);
+    const categoryKey = analysis.unclear ? "" : BACKEND_CATEGORY_MAP[analysis.detected_emotion];
+    const emotion = categoryKey ? categoryTitle(emotionDB[categoryKey]) : t.emotionFallback;
+    const eventPhrase = currentLang === "en" ? "this happens" : (currentLang === "zh" ? "这件事发生" : "situasi ini terjadi");
+    const responseTemplate = growthCoachMode === "draft" ? t.draftResponseTemplate : t.responseTemplate;
+    const response = growthText(responseTemplate, { emotion, event: eventPhrase });
+    const observation = growthCoachMode === "draft" ? t.neutralDraft : t.neutralSituation;
+    const steps = growthCoachSteps(profile);
+    result.classList.remove("hidden", "error");
+    result.innerHTML = `
+        <div class="coach-personal-note">${escapeHTML(growthText(t.tendencyReminder, { name: profile.name, tip: profile.coachTip }))}.</div>
+        <article><span>01</span><div><h3>${escapeHTML(t.coachHeadings[0])}</h3><p>${escapeHTML(emotion)}</p></div></article>
+        <article><span>02</span><div><h3>${escapeHTML(t.coachHeadings[1])}</h3><p>${escapeHTML(observation)}</p></div></article>
+        <article><span>03</span><div><h3>${escapeHTML(t.coachHeadings[2])}</h3><ol>${steps.map(step => `<li>${escapeHTML(step)}</li>`).join("")}</ol></div></article>
+        <article class="coach-response"><span>04</span><div><h3>${escapeHTML(t.coachHeadings[3])}</h3><p>“${escapeHTML(response)}”</p></div></article>`;
+    growthState().coachSessions += 1;
+    persistState();
+    setText({ growthCoachCount: growthState().coachSessions });
+    showToast(t.coachDone, "success");
+}
+
+function growthScenarioIndex(today, count) {
+    return Array.from(today).reduce((sum, character) => sum + character.charCodeAt(0), 0) % count;
+}
+
+function renderGrowthDaily(now = new Date()) {
+    const t = growthCopy[currentLang], today = localDateKey(now), scenarioIndex = growthScenarioIndex(today, t.scenarios.length);
+    const scenario = t.scenarios[scenarioIndex], answer = growthState().dailyAnswers[today];
+    document.getElementById("growthDailyContent").innerHTML = `
+        <div class="daily-date">${new Intl.DateTimeFormat(currentLang === "id" ? "id-ID" : (currentLang === "zh" ? "zh-CN" : "en-US"), { weekday: "long", day: "numeric", month: "long" }).format(now)}</div>
+        <p class="daily-situation">${escapeHTML(scenario.text)}</p><p class="daily-prompt">${escapeHTML(t.dailyPrompt)}</p>
+        <div class="daily-choices">${scenario.choices.map((choice, index) => `
+            <button type="button" class="daily-choice ${answer?.choiceIndex === index ? "selected" : ""} ${answer && scenario.best === index ? "best" : ""}" onclick="answerGrowthDaily(${scenarioIndex}, ${index})" ${answer ? "disabled" : ""}>
+                <span>${String.fromCharCode(65 + index)}</span>${escapeHTML(choice)}
+            </button>`).join("")}</div>
+        ${answer ? `<div class="daily-feedback"><strong>✓ ${escapeHTML(t.dailyDone)}</strong><p>${escapeHTML(scenario.feedback[answer.choiceIndex])}</p><small>${escapeHTML(t.dailyAgain)}</small></div>` : ""}`;
+}
+
+function answerGrowthDaily(scenarioIndex, choiceIndex, now = new Date()) {
+    const t = growthCopy[currentLang], today = localDateKey(now), scenario = t.scenarios[scenarioIndex];
+    if (!scenario || !scenario.choices[choiceIndex] || growthState().dailyAnswers[today]) return;
+    growthState().dailyAnswers[today] = { scenarioIndex, choiceIndex, completedAt: new Date().toISOString() };
+    persistState();
+    renderGrowthDashboard();
 }
 
 function renderCategories() {
@@ -437,9 +721,10 @@ function renderCategories() {
 function renderEmotionWheel() {
     const entries = Object.entries(emotionDB), segment = 360 / entries.length;
     const wheel = document.getElementById("emotionWheel");
-    wheel.setAttribute("aria-label", uiText[currentLang].wheelLabel);
+    const t = uiText[currentLang];
+    wheel.setAttribute("aria-label", t.wheelLabel);
     const gap = 1.35;
-    wheel.style.background = `conic-gradient(${entries.flatMap(([_key, category], index) => {
+    const wheelGradient = `conic-gradient(${entries.flatMap(([_key, category], index) => {
         const start = index * segment, end = (index + 1) * segment;
         return [
             `var(--surface-solid) ${start}deg ${start + gap}deg`,
@@ -447,10 +732,16 @@ function renderEmotionWheel() {
             `var(--surface-solid) ${end - gap}deg ${end}deg`
         ];
     }).join(",")})`;
+    wheel.style.background = "none";
+    wheel.style.setProperty("--wheel-gradient", wheelGradient);
+    wheel.style.setProperty("--wheel-rotation", `${wheelRotation}deg`);
+    const selectedCategory = emotionDB[selectedWheelKey];
+    const centerTitle = selectedCategory ? categoryTitle(selectedCategory) : t.wheelSpin;
+    const centerHint = selectedCategory ? t.wheelSpinAgain : t.wheelSpinHint;
     wheel.innerHTML = `${entries.map(([key, category], index) => {
         const title = categoryTitle(category), angle = index * segment + segment / 2;
         return `<button type="button" class="wheel-node" data-wheel-key="${key}" style="--angle:${angle}deg;--node-color:${category.color}" onclick="openCategory('${key}')" title="${escapeHTML(title)}" aria-label="${escapeHTML(title)}">${category.icon}</button>`;
-    }).join("")}<div class="wheel-center"><span class="wheel-center-title" id="wheelCenterTitle">${escapeHTML(uiText[currentLang].wheelCenter)}</span><span class="wheel-center-hint" id="wheelCenterHint">${escapeHTML(uiText[currentLang].wheelCenterHint)}</span></div>`;
+    }).join("")}<button type="button" class="wheel-center" id="wheelCenter" onclick="spinEmotionWheel(event)" aria-label="${escapeHTML(t.wheelSpin)}"><span class="wheel-center-icon" aria-hidden="true">↻</span><span class="wheel-center-title" id="wheelCenterTitle">${escapeHTML(centerTitle)}</span><span class="wheel-center-hint" id="wheelCenterHint">${escapeHTML(centerHint)}</span></button>`;
     document.getElementById("emotionWheelLegend").innerHTML = entries.map(([key, category]) => `
         <button type="button" class="wheel-legend-item" data-wheel-key="${key}" style="--legend-color:${category.color}" onclick="openCategory('${key}')">
             <span class="wheel-legend-icon" aria-hidden="true">${category.icon}</span>
@@ -464,6 +755,12 @@ function renderEmotionWheel() {
         button.addEventListener("focus", () => previewWheelSpectrum(key));
         button.addEventListener("blur", resetWheelPreview);
     });
+    if (selectedWheelKey) {
+        previewWheelSpectrum(selectedWheelKey);
+        renderWheelResult(selectedWheelKey);
+    } else {
+        hideWheelResult();
+    }
 }
 
 function previewWheelSpectrum(key) {
@@ -478,9 +775,159 @@ function previewWheelSpectrum(key) {
 }
 
 function resetWheelPreview() {
+    if (selectedWheelKey) {
+        previewWheelSpectrum(selectedWheelKey);
+        setText({ wheelCenterHint: uiText[currentLang].wheelSpinAgain });
+        return;
+    }
     document.getElementById("emotionWheel").classList.remove("has-active");
     document.querySelectorAll("[data-wheel-key]").forEach(button => button.classList.remove("is-active"));
-    setText({ wheelCenterTitle: uiText[currentLang].wheelCenter, wheelCenterHint: uiText[currentLang].wheelCenterHint });
+    setText({ wheelCenterTitle: uiText[currentLang].wheelSpin, wheelCenterHint: uiText[currentLang].wheelSpinHint });
+}
+
+function spinEmotionWheel(event) {
+    event?.preventDefault();
+    const wheel = document.getElementById("emotionWheel");
+    if (!wheel || wheel.classList.contains("is-spinning")) return;
+    const entries = Object.entries(emotionDB), segment = 360 / entries.length;
+    const selectedIndex = Math.floor(Math.random() * entries.length);
+    const [selectedKey] = entries[selectedIndex];
+    const selectedAngle = selectedIndex * segment + segment / 2;
+    const currentAngle = ((wheelRotation % 360) + 360) % 360;
+    const targetAngle = (360 - selectedAngle) % 360;
+    const alignment = (targetAngle - currentAngle + 360) % 360;
+
+    selectedWheelKey = "";
+    hideWheelResult();
+    wheelRotation += (4 + Math.floor(Math.random() * 2)) * 360 + alignment;
+    wheel.classList.remove("has-active");
+    wheel.classList.add("is-spinning");
+    document.querySelectorAll("[data-wheel-key]").forEach(button => button.classList.remove("is-active"));
+    setText({ wheelCenterTitle: uiText[currentLang].wheelSpinning, wheelCenterHint: "" });
+    const center = document.getElementById("wheelCenter");
+    if (center) center.disabled = true;
+    wheel.style.setProperty("--wheel-rotation", `${wheelRotation}deg`);
+
+    clearTimeout(wheelSpinTimer);
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    wheelSpinTimer = setTimeout(() => finishEmotionWheelSpin(selectedKey), reducedMotion ? 120 : 2750);
+}
+
+function finishEmotionWheelSpin(selectedKey) {
+    const wheel = document.getElementById("emotionWheel");
+    if (!wheel || !emotionDB[selectedKey]) return;
+    wheel.classList.remove("is-spinning");
+    selectedWheelKey = selectedKey;
+    const center = document.getElementById("wheelCenter");
+    if (center) {
+        center.disabled = false;
+        center.setAttribute("aria-label", uiText[currentLang].wheelSpinAgain);
+    }
+    previewWheelSpectrum(selectedKey);
+    setText({ wheelCenterHint: uiText[currentLang].wheelSelectedHint });
+    renderWheelResult(selectedKey, true);
+}
+
+function hideWheelResult() {
+    document.getElementById("wheelResult")?.classList.add("hidden");
+}
+
+function renderWheelResult(selectedKey, bringIntoView = false) {
+    const result = document.getElementById("wheelResult");
+    const category = emotionDB[selectedKey];
+    if (!result || !category) return;
+    const t = uiText[currentLang];
+    result.style.setProperty("--result-color", category.color);
+    result.classList.remove("hidden");
+    setText({
+        wheelResultIcon: category.icon,
+        wheelResultKicker: t.wheelResultKicker,
+        wheelResultTitle: categoryTitle(category),
+        wheelResultDescription: spectrumDescriptions[selectedKey][currentLang],
+        wheelResultMeta: t.wheelResultMeta.replace("{count}", category.subs[currentLang].length),
+        wheelResultOpen: t.wheelResultOpen,
+        wheelResultSpin: t.wheelResultSpin
+    });
+    if (bringIntoView) setTimeout(() => result.scrollIntoView?.({ behavior: "smooth", block: "nearest" }), 80);
+}
+
+function openSelectedWheelSpectrum() {
+    if (selectedWheelKey && emotionDB[selectedWheelKey]) openCategory(selectedWheelKey);
+}
+
+function renderStoryGame() {
+    const stage = document.getElementById("gameStage");
+    if (!stage) return;
+    const t = uiText[currentLang];
+    setText({
+        gameKicker: t.gameKicker, gameTitle: t.gameTitle, gameSubtitle: t.gameSubtitle,
+        gameSafety: t.gameSafety, gameShareBtn: t.gameShare
+    });
+    const drawButton = document.getElementById("gameDrawBtn");
+    const shareButton = document.getElementById("gameShareBtn");
+    drawButton.innerText = activeStoryCard ? t.gameNext : t.gameDraw;
+    shareButton.innerText = t.gameShare;
+    shareButton.disabled = !activeStoryCard;
+
+    if (!activeStoryCard) {
+        stage.style.setProperty("--game-color", "var(--primary)");
+        setText({
+            gameRound: t.gameReady, gameEmotionIcon: "💬", gameSpectrum: t.gameReadySpectrum,
+            gameEmotionName: t.gameReadyName, gamePrompt: t.gameStartPrompt
+        });
+        return;
+    }
+
+    const category = emotionDB[activeStoryCard.catKey];
+    const emotion = category?.subs[currentLang]?.[activeStoryCard.index];
+    if (!category || !emotion) return;
+    const promptTemplate = t.gamePrompts[activeStoryCard.promptIndex % t.gamePrompts.length];
+    const prompt = promptTemplate.replaceAll("{emotion}", emotion.name).replaceAll("{spectrum}", categoryTitle(category));
+    stage.style.setProperty("--game-color", category.color);
+    setText({
+        gameRound: `${t.gameRound} ${storyGameRound}`,
+        gameEmotionIcon: emotion.emoji,
+        gameSpectrum: categoryTitle(category),
+        gameEmotionName: emotion.name,
+        gamePrompt: prompt
+    });
+}
+
+function drawEmotionPrompt() {
+    const cards = Object.entries(emotionDB).flatMap(([catKey, category]) =>
+        category.subs.id.map((_emotion, index) => ({ catKey, index }))
+    );
+    if (!cards.length) return;
+    let cardIndex = Math.floor(Math.random() * cards.length);
+    const previousId = activeStoryCard ? `${activeStoryCard.catKey}:${activeStoryCard.index}` : "";
+    if (`${cards[cardIndex].catKey}:${cards[cardIndex].index}` === previousId) cardIndex = (cardIndex + 1) % cards.length;
+    activeStoryCard = {
+        ...cards[cardIndex],
+        promptIndex: Math.floor(Math.random() * uiText[currentLang].gamePrompts.length)
+    };
+    storyGameRound += 1;
+    renderStoryGame();
+}
+
+async function shareStoryPrompt() {
+    if (!activeStoryCard) return;
+    const t = uiText[currentLang];
+    const question = document.getElementById("gamePrompt").innerText;
+    const text = `${t.gameShareLead}\n\n${question}\n\n${t.gameShareFooter}`;
+    try {
+        if (navigator.share) {
+            await navigator.share({ title: t.gameTitle, text });
+            return;
+        }
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            showToast(t.gameCopied, "success");
+            return;
+        }
+        showToast(t.gameShareUnavailable, "error");
+    } catch (error) {
+        if (error?.name !== "AbortError") showToast(t.gameShareUnavailable, "error");
+    }
 }
 
 function renderSavedPanels() {

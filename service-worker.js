@@ -1,11 +1,12 @@
-const CACHE_NAME = "box-of-emotions-v13";
+const CACHE_NAME = "box-of-emotions-v26";
 const APP_SHELL = [
     "./",
     "./index.html",
-    "./styles.css",
+    "./styles.css?v=28",
     "./full-essays.js?v=1",
-    "./emotions.js?v=16",
-    "./app.js?v=16",
+    "./emotions.js?v=25",
+    "./growth.js?v=2",
+    "./app.js?v=26",
     "./manifest.webmanifest",
     "./icons/icon-192.png",
     "./icons/icon-512.png"

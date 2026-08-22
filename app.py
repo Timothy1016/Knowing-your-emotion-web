@@ -136,7 +136,10 @@ def protect_api() -> Any:
     return None
 
 def empty_state() -> dict[str, Any]:
-    return {"version": 1, "notes": [], "favorites": [], "history": [], "viewCounts": {}}
+    return {
+        "version": 1, "notes": [], "favorites": [], "history": [], "viewCounts": {},
+        "growth": {"profile": None, "dailyAnswers": {}, "coachSessions": 0},
+    }
 
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
@@ -257,7 +260,36 @@ def sanitize_state(payload: Any) -> dict[str, Any]:
         str(key)[:120]: max(0, min(int(value), 1_000_000))
         for key, value in list((payload.get("viewCounts") or {}).items())[:500]
     }
-    return {"version": 1, "notes": notes, "favorites": favorites, "history": history, "viewCounts": view_counts}
+    growth_payload = payload.get("growth") if isinstance(payload.get("growth"), dict) else {}
+    allowed_traits = {"feeling", "thinking", "reflective", "expressive"}
+    profile_payload = growth_payload.get("profile") if isinstance(growth_payload.get("profile"), dict) else None
+    profile = None
+    if profile_payload and profile_payload.get("primary") in allowed_traits:
+        primary = profile_payload["primary"]
+        secondary = profile_payload.get("secondary") if profile_payload.get("secondary") in allowed_traits else primary
+        raw_scores = profile_payload.get("scores") if isinstance(profile_payload.get("scores"), dict) else {}
+        profile = {
+            "primary": primary,
+            "secondary": secondary,
+            "scores": {trait: max(0, min(int(raw_scores.get(trait) or 0), 100)) for trait in allowed_traits},
+            "completedAt": str(profile_payload.get("completedAt") or "")[:40],
+        }
+    daily_answers = {}
+    raw_daily = growth_payload.get("dailyAnswers") if isinstance(growth_payload.get("dailyAnswers"), dict) else {}
+    for date_key, answer in list(raw_daily.items())[:400]:
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(date_key)) or not isinstance(answer, dict):
+            continue
+        daily_answers[str(date_key)] = {
+            "scenarioIndex": max(0, min(int(answer.get("scenarioIndex") or 0), 100)),
+            "choiceIndex": max(0, min(int(answer.get("choiceIndex") or 0), 10)),
+            "completedAt": str(answer.get("completedAt") or "")[:40],
+        }
+    growth = {
+        "profile": profile,
+        "dailyAnswers": daily_answers,
+        "coachSessions": max(0, min(int(growth_payload.get("coachSessions") or 0), 1_000_000)),
+    }
+    return {"version": 1, "notes": notes, "favorites": favorites, "history": history, "viewCounts": view_counts, "growth": growth}
 
 @app.get("/api/state")
 def get_state() -> Any:
@@ -374,7 +406,7 @@ def frontend() -> Any:
 @app.get("/<path:filename>")
 def frontend_asset(filename: str) -> Any:
     allowed = {
-        "styles.css", "full-essays.js", "emotions.js", "app.js", "manifest.webmanifest", "service-worker.js",
+        "styles.css", "full-essays.js", "emotions.js", "growth.js", "app.js", "manifest.webmanifest", "service-worker.js",
         "icons/icon-192.png", "icons/icon-512.png",
     }
     if filename not in allowed:
