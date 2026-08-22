@@ -690,13 +690,28 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .nav-item.active .nav-icon { transform: translateY(-2px) scale(1.08); }
 
 @media (max-width: 519px) {
-    body { padding: 0; align-items: stretch; }
-    .app-container { height: 100dvh; max-height: none; border: 0; border-radius: 0; }
+    html, body { min-height: 100dvh; }
+    body { height: 100dvh; padding: 0; align-items: stretch; overflow: hidden; }
+    .app-container { width: 100%; height: 100dvh; min-height: 100dvh; max-height: none; border: 0; border-radius: 0; }
     .header-bar { padding: 14px 18px 10px; }
     .controls { gap: 5px; }
     .controls .btn-icon { min-width: 40px; height: 40px; padding: 0 8px; border-radius: 12px; }
-    .content-area { padding: 0 18px 24px; }
+    .content-area { padding: 0 16px 18px; }
     .brand { font-size: 15px; }
+    .user-greeting { margin-bottom: 17px; padding: 16px; border-radius: 20px; }
+    .greeting-profile { gap: 13px 14px; }
+    .user-avatar { width: 52px; height: 52px; border-radius: 17px; font-size: 17px; }
+    .greeting-text .greeting-eyebrow { font-size: 9px; }
+    .greeting-text h2 { font-size: 20px; }
+    .greeting-meta { margin-top: 7px; font-size: 9px; }
+    .greeting-prompt { min-height: 0; gap: 9px; padding: 13px 14px 14px; border-left-width: 4px; border-radius: 15px; font-size: 12px; line-height: 1.48; }
+    .greeting-quote-mark { margin-top: -1px; font-size: 27px; }
+    .greeting-quote-copy { gap: 4px; }
+    .greeting-quote-label { font-size: 8px; letter-spacing: .1em; }
+    .curhat-card { margin-bottom: 18px; padding: 17px; border-radius: 19px; }
+    .curhat-title { font-size: 15px; }
+    .curhat-sub { margin-bottom: 10px; font-size: 11px; }
+    .curhat-textarea { min-height: 76px; padding: 11px 12px; font-size: 12px; }
     .spectrum-intro { padding: 19px; }
     .spectrum-heading { gap: 12px; }
     .spectrum-icon { width: 52px; height: 52px; }
@@ -706,15 +721,17 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
     .reminder-test { width: 100%; margin-top: 0; }
     .wheel-card { margin-left: -4px; margin-right: -4px; padding: 18px; }
     .wheel-legend { margin-left: -18px; margin-right: -18px; padding-left: 18px; padding-right: 18px; }
-    .bottom-nav .nav-item { min-width: 0; flex: 1 1 20%; padding: 6px 3px; font-size: 9px; }
+    .bottom-nav { position: fixed; right: 0; bottom: 0; left: 0; height: calc(72px + env(safe-area-inset-bottom)); padding-top: 5px; background: color-mix(in srgb, var(--surface-solid) 92%, transparent); }
+    .bottom-nav .nav-item { min-width: 0; min-height: 50px; flex: 1 1 20%; padding: 5px 3px; font-size: 9px; }
     .bottom-nav .nav-icon { font-size: 18px; }
     .scroll-fab { right: 16px; bottom: calc(91px + env(safe-area-inset-bottom)); }
 }
 
 @media (max-width: 359px) {
-    .user-greeting { padding: 14px; }
+    .user-greeting { padding: 13px; }
     .user-avatar { width: 46px; height: 46px; border-radius: 15px; font-size: 15px; }
     .greeting-profile { gap: 10px; }
+    .greeting-prompt { padding: 12px; font-size: 11.5px; }
     .emotion-wheel { --orbit-radius: -101px; }
     .wheel-node { width: 38px; height: 38px; font-size: 17px; }
     .wheel-legend { grid-auto-columns: minmax(132px, 57%); }

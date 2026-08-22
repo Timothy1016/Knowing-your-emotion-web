@@ -1,8 +1,8 @@
-const CACHE_NAME = "box-of-emotions-v26";
+const CACHE_NAME = "box-of-emotions-v27";
 const APP_SHELL = [
     "./",
     "./index.html",
-    "./styles.css?v=28",
+    "./styles.css?v=29",
     "./full-essays.js?v=1",
     "./emotions.js?v=25",
     "./growth.js?v=2",
